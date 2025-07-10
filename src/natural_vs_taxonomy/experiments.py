@@ -164,6 +164,13 @@ class GenreConvergenceExperiment:
         n_genres = len(unique_genres)
         convergence_matrix = np.zeros((n_genres, n_genres))
         
+        # First, let's normalize the features for better distance calculation
+        from sklearn.preprocessing import StandardScaler
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        
+        print(f"Calculating similarities for {n_genres} genres...")
+        
         for i, genre1 in enumerate(unique_genres):
             if i % 5 == 0:
                 print(f"  Processing genre {i+1}/{n_genres}...")
@@ -173,24 +180,50 @@ class GenreConvergenceExperiment:
                     mask1 = y == genre1
                     mask2 = y == genre2
                     
-                    X1 = X[mask1]
-                    X2 = X[mask2]
+                    X1 = X_scaled[mask1]
+                    X2 = X_scaled[mask2]
                     
                     if len(X1) > 0 and len(X2) > 0:
                         if i == j:
+                            # Within-genre similarity
                             if len(X1) > 1:
                                 from scipy.spatial.distance import pdist
-                                dists = pdist(X1, metric='euclidean')
-                                avg_dist = dists.mean() if len(dists) > 0 else 0
+                                # Use cosine similarity instead of euclidean
+                                dists = pdist(X1, metric='cosine')
+                                if len(dists) > 0:
+                                    avg_dist = dists.mean()
+                                    # Convert distance to similarity
+                                    similarity = 1 - avg_dist
+                                else:
+                                    similarity = 1.0
                             else:
-                                avg_dist = 0
+                                similarity = 1.0
                         else:
-                            dists = pairwise_distances(X1, X2, metric='euclidean')
-                            avg_dist = dists.mean()
+                            # Between-genre similarity
+                            # Calculate centroid-based similarity
+                            centroid1 = X1.mean(axis=0)
+                            centroid2 = X2.mean(axis=0)
+                            
+                            # Use cosine similarity
+                            from sklearn.metrics.pairwise import cosine_similarity
+                            similarity = cosine_similarity(
+                                centroid1.reshape(1, -1), 
+                                centroid2.reshape(1, -1)
+                            )[0, 0]
+                            
+                            # Ensure similarity is in [0, 1]
+                            similarity = max(0, min(1, similarity))
                         
-                        similarity = 1 / (1 + avg_dist)
                         convergence_matrix[i, j] = similarity
                         convergence_matrix[j, i] = similarity
+        
+        # Print some statistics
+        off_diagonal = convergence_matrix[~np.eye(n_genres, dtype=bool)]
+        print(f"\nSimilarity statistics:")
+        print(f"  Min (off-diagonal): {off_diagonal.min():.3f}")
+        print(f"  Max (off-diagonal): {off_diagonal.max():.3f}")
+        print(f"  Mean (off-diagonal): {off_diagonal.mean():.3f}")
+        print(f"  Std (off-diagonal): {off_diagonal.std():.3f}")
         
         return pd.DataFrame(convergence_matrix, 
                            index=unique_genres, 

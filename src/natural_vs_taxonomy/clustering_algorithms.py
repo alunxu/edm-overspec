@@ -20,7 +20,7 @@ class NaturalClusterFinder:
     Find natural number of clusters using multiple validation methods.
     """
     
-    def __init__(self, min_clusters=5, max_clusters=20, random_state=42):
+    def __init__(self, min_clusters=5, max_clusters=35, random_state=42):
         self.min_clusters = min_clusters
         self.max_clusters = max_clusters
         self.random_state = random_state
@@ -98,22 +98,29 @@ class NaturalClusterFinder:
                 metrics['inertia'].append(np.inf)
                 continue
             
+            # Calculate standard metrics
             metrics['silhouette'].append(silhouette_score(X, labels))
             metrics['calinski'].append(calinski_harabasz_score(X, labels))
             metrics['davies_bouldin'].append(davies_bouldin_score(X, labels))
             
-            # Calculate inertia
-            inertia = 0
+            # Calculate inertia (within-cluster sum of squares)
+            inertia = 0.0
             for i in np.unique(labels):
-                cluster_points = X[labels == i]
+                cluster_mask = labels == i
+                cluster_points = X[cluster_mask]
                 if len(cluster_points) > 0:
-                    center = cluster_points.mean(axis=0)
-                    inertia += np.sum((cluster_points - center) ** 2)
+                    # Ensure we're working with numpy arrays
+                    cluster_array = np.array(cluster_points)
+                    center = cluster_array.mean(axis=0)
+                    # Calculate squared distances
+                    squared_distances = np.sum((cluster_array - center) ** 2)
+                    inertia += float(squared_distances)
+            
             metrics['inertia'].append(inertia)
         
-        # Convert to arrays
+        # Convert to numpy arrays and ensure they are 1D
         for key in metrics:
-            metrics[key] = np.array(metrics[key])
+            metrics[key] = np.array(metrics[key], dtype=float).flatten()
         
         return metrics
     
@@ -143,25 +150,50 @@ class NaturalClusterFinder:
         if len(inertias) < 3:
             return k_values[0]
         
-        # Normalize data
-        x = np.array(k_values)
-        y = np.array(inertias)
+        # Convert to numpy arrays and ensure 1D float arrays
+        x = np.array(k_values, dtype=float).flatten()
+        y = np.array(inertias, dtype=float).flatten()
+        
+        # Validate data
+        if len(x) != len(y):
+            return k_values[len(k_values)//3]
         
         if np.all(y == y[0]) or np.isnan(y).any() or np.isinf(y).any():
             return k_values[len(k_values)//3]
         
-        x_norm = (x - x.min()) / (x.max() - x.min() + 1e-10)
-        y_norm = (y - y.min()) / (y.max() - y.min() + 1e-10)
+        # Normalize
+        x_range = x.max() - x.min()
+        y_range = y.max() - y.min()
+        
+        if x_range == 0 or y_range == 0:
+            return k_values[len(k_values)//3]
+        
+        x_norm = (x - x.min()) / x_range
+        y_norm = (y - y.min()) / y_range
         
         # Calculate distances from line
         distances = []
+        
+        # Line from first to last point
+        p1 = np.array([x_norm[0], y_norm[0]])
+        p2 = np.array([x_norm[-1], y_norm[-1]])
+        
         for i in range(1, len(x_norm) - 1):
-            p = np.array([x_norm[i], y_norm[i]])
-            a = np.array([x_norm[0], y_norm[0]])
-            b = np.array([x_norm[-1], y_norm[-1]])
+            # Current point
+            p0 = np.array([x_norm[i], y_norm[i]])
             
-            d = np.abs(np.cross(b-a, a-p)) / (np.linalg.norm(b-a) + 1e-10)
-            distances.append(d)
+            # Calculate perpendicular distance from point to line
+            # Using the formula: |det([p2-p1, p1-p0])| / |p2-p1|
+            numerator = np.abs((p2[1] - p1[1]) * (p1[0] - p0[0]) - 
+                              (p1[1] - p0[1]) * (p2[0] - p1[0]))
+            denominator = np.sqrt((p2[1] - p1[1])**2 + (p2[0] - p1[0])**2)
+            
+            if denominator > 0:
+                distance = numerator / denominator
+            else:
+                distance = 0
+            
+            distances.append(distance)
         
         if distances:
             elbow_idx = np.argmax(distances) + 1

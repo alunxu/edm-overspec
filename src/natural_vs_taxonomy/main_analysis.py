@@ -1,6 +1,7 @@
 """
 main_analysis.py
 ================
+Main script to run complete EDM genre analysis with modular components
 """
 
 import os
@@ -20,6 +21,7 @@ from visualization import (
     plot_genre_convergence_heatmap, plot_cluster_comparison_bars,
     create_summary_report_plot
 )
+from utils import ensure_directories, get_output_paths, save_dataframe_with_info, create_analysis_summary
 
 
 def load_data(filepath='dataset/top100_with_tempogram_nmf_meta.csv'):
@@ -46,6 +48,9 @@ def run_complete_analysis():
     print("EDM GENRE ANALYSIS - COMPLETE PIPELINE")
     print("="*70)
     print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Ensure output directories exist
+    ensure_directories()
     
     # 1. Load data
     df, X, y = load_data()
@@ -79,7 +84,7 @@ def run_complete_analysis():
     print("\n" + "="*60)
     print("NATURAL CLUSTERING")
     print("="*60)
-    natural_labels, natural_k = clusterer.find_natural_clusters(X_selected, min_k=5, max_k=20)
+    natural_labels, natural_k = clusterer.find_natural_clusters(X_selected, min_k=5, max_k=35)
     natural_metrics = clusterer.evaluate_clustering(X_selected, natural_labels, y)
     
     print("\nNatural clustering metrics:")
@@ -131,6 +136,9 @@ def run_complete_analysis():
     print("SAVING RESULTS")
     print("="*60)
     
+    # Get organized output paths
+    paths = get_output_paths()
+    
     # Save all results
     all_results = {
         'data_info': {
@@ -156,10 +164,10 @@ def run_complete_analysis():
         }
     }
     
-    # Save pickle
-    with open('edm_complete_analysis_results.pkl', 'wb') as f:
+    # Save pickle files
+    with open(paths['complete_results'], 'wb') as f:
         pickle.dump(all_results, f)
-    print("Saved: edm_complete_analysis_results.pkl")
+    print(f"Saved: {paths['complete_results']}")
     
     # Save clustering summary
     summary_df = pd.DataFrame({
@@ -169,21 +177,35 @@ def run_complete_analysis():
         'forced_cluster_35': forced_labels,
         'natural_cluster': natural_labels
     })
-    summary_df.to_csv('edm_clustering_summary.csv', index=False)
-    print("Saved: edm_clustering_summary.csv")
+    save_dataframe_with_info(summary_df, paths['clustering_summary'], 
+                            "Complete clustering assignments for all songs")
     
     # Save convergence matrix
-    exp2_results['convergence_matrix'].to_csv('genre_convergence_matrix.csv')
-    print("Saved: genre_convergence_matrix.csv")
+    exp2_results['convergence_matrix'].to_csv(paths['convergence_matrix'])
+    print(f"Saved: {paths['convergence_matrix']}")
     
     # Save top converging pairs
-    exp2_results['convergence_pairs'].head(50).to_csv('top_converging_pairs.csv', index=False)
-    print("Saved: top_converging_pairs.csv")
+    save_dataframe_with_info(exp2_results['convergence_pairs'].head(50), 
+                            paths['converging_pairs'],
+                            "Top 50 most acoustically similar genre pairs")
     
     # Save phantom distinctions
     if exp2_results['phantom_distinctions'] is not None:
-        exp2_results['phantom_distinctions'].to_csv('phantom_distinctions.csv', index=False)
-        print("Saved: phantom_distinctions.csv")
+        save_dataframe_with_info(exp2_results['phantom_distinctions'], 
+                                paths['phantom_distinctions'],
+                                "Genres that sound similar but are marketed differently")
+    
+    # Save genre fragmentation
+    if 'genre_entropy' in exp2_results:
+        save_dataframe_with_info(exp2_results['genre_entropy'], 
+                                paths['genre_fragmentation'],
+                                "How fragmented each genre is across clusters")
+    
+    # Save feature importance scores
+    if hasattr(selector, 'feature_scores'):
+        save_dataframe_with_info(selector.feature_scores.head(100), 
+                                paths['feature_scores'],
+                                "Top 100 features by importance score")
     
     # 8. Final Report
     print_final_report(all_results)
@@ -198,6 +220,9 @@ def print_final_report(results):
     print("\n" + "="*70)
     print("FINAL REPORT")
     print("="*70)
+    
+    # Get paths for saving
+    paths = get_output_paths()
     
     data_info = results['data_info']
     clustering = results['clustering']
@@ -241,12 +266,25 @@ RECOMMENDATIONS:
 4. Base future genre decisions on acoustic similarity metrics
 
 OUTPUT FILES:
-- edm_complete_analysis_results.pkl : Complete analysis results
-- edm_clustering_summary.csv : All cluster assignments  
-- genre_convergence_matrix.csv : Genre similarity matrix
-- top_converging_pairs.csv : Most similar genre pairs
-- phantom_distinctions.csv : Marketing vs acoustic distinctions
-- plots/ : All visualizations
+results/
+├── csv/
+│   ├── edm_clustering_summary.csv : All cluster assignments
+│   ├── genre_convergence_matrix.csv : Genre similarity matrix
+│   ├── top_converging_pairs.csv : Most similar genre pairs
+│   ├── phantom_distinctions.csv : Marketing vs acoustic
+│   ├── genre_fragmentation.csv : Genre cluster distribution
+│   └── feature_importance_scores.csv : Selected features
+├── pkl/
+│   └── edm_complete_analysis_results.pkl : Complete results
+└── reports/
+    └── edm_analysis_report.txt : This report
+
+plots/
+├── validation_metrics.png : Cluster validation
+├── tsne_comparison.png : Clustering comparison
+├── genre_convergence_heatmap.png : Genre similarity
+├── cluster_comparison.png : Natural vs Industry
+└── summary_report.png : Complete summary
 
 {'='*60}
     """
@@ -254,9 +292,14 @@ OUTPUT FILES:
     print(report)
     
     # Save text report
-    with open('edm_analysis_report.txt', 'w') as f:
+    with open(paths['text_report'], 'w') as f:
         f.write(report)
-    print("\nReport saved to: edm_analysis_report.txt")
+    print(f"\nReport saved to: {paths['text_report']}")
+    
+    # Also save timestamped version
+    with open(paths['timestamped_report'], 'w') as f:
+        f.write(report)
+    print(f"Timestamped copy: {paths['timestamped_report']}")
 
 
 if __name__ == "__main__":
