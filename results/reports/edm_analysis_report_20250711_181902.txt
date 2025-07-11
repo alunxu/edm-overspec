@@ -10,23 +10,23 @@ DATA SUMMARY:
 - Selected features: 100
 
 KEY FINDINGS:
-- Natural acoustic families: 7
+- Natural acoustic families: 8
 - Industry genre categories: 35
-- Over-segmentation: 28 excess categories
+- Over-segmentation: 27 excess categories
 
 CLUSTERING QUALITY:
-- Natural vs Genres NMI: 0.130
-- Forced vs Genres NMI: 0.334
-- Natural vs Forced NMI: 0.571
+- Natural vs Genres NMI: 0.148
+- Forced vs Genres NMI: 0.333
+- Natural vs Forced NMI: 0.590
 
 INTERPRETATION:
 The EDM industry's 35-genre taxonomy appears to be over-segmented
-by approximately 28 categories. The data naturally forms 7
+by approximately 27 categories. The data naturally forms 8
 distinct acoustic families, suggesting significant marketing-driven
 categorization beyond actual musical differences.
 
 RECOMMENDATIONS:
-1. Consolidate to 7 core acoustic families
+1. Consolidate to 8 core acoustic families
 2. Use marketing variations as sub-categories
 3. Merge acoustically identical genres identified in convergence analysis
 4. Base future genre decisions on acoustic similarity metrics

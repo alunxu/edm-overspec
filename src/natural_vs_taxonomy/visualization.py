@@ -9,6 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.manifold import TSNE
+from scipy.cluster.hierarchy import dendrogram, linkage
 import os
 import warnings
 warnings.filterwarnings('ignore')
@@ -31,7 +32,7 @@ plt.rcParams.update({
     'axes.spines.top': False,
     'axes.spines.right': False,
     'lines.linewidth': 2,
-    'lines.markersize': 8
+    'lines.markersize': 6
 })
 
 
@@ -41,70 +42,142 @@ def ensure_plot_dir():
         os.makedirs('plots')
 
 
-def plot_validation_metrics(results, save=True):
+def plot_validation_metrics(results, features_scaled=None, y_true=None, save=True):
     """
-    Plot clustering validation metrics.
+    Plot clustering validation metrics with genre-based hierarchical dendrogram.
     
     Parameters:
     -----------
     results : dict
         Results from natural cluster finding
+    features_scaled : array-like, optional
+        Scaled features for hierarchical clustering
+    y_true : array-like, optional
+        True genre labels
     save : bool
         Whether to save the plot
     """
     ensure_plot_dir()
     
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(14, 10))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
     
     k_values = results['k_values']
     metrics = results['metrics']
     optimal_k = results['optimal_k']
     
-    # Silhouette scores
-    ax1.plot(k_values, metrics['silhouette'], 'go-', linewidth=2, markersize=8)
-    ax1.set_xlabel('Number of Clusters')
-    ax1.set_ylabel('Silhouette Score')
-    ax1.set_title('Silhouette Score Analysis')
-    ax1.axvline(x=optimal_k, color='red', linestyle='--', alpha=0.7, linewidth=2)
-    ax1.axvline(x=35, color='orange', linestyle=':', alpha=0.7, linewidth=2)
-    ax1.legend(['Score', f'Natural ({optimal_k})', 'Industry (35)'])
+    # Left panel: All metrics on one plot
+    # Normalize metrics to [0, 1] for comparison
+    silhouette_norm = (metrics['silhouette'] - np.min(metrics['silhouette'])) / \
+                      (np.max(metrics['silhouette']) - np.min(metrics['silhouette']))
     
-    # Elbow plot
-    ax2.plot(k_values, metrics['inertia'], 'bo-', linewidth=2, markersize=8)
-    ax2.set_xlabel('Number of Clusters')
-    ax2.set_ylabel('Within-Cluster Sum of Squares')
-    ax2.set_title('Elbow Method')
-    ax2.axvline(x=optimal_k, color='red', linestyle='--', alpha=0.7, linewidth=2)
-    ax2.axvline(x=35, color='orange', linestyle=':', alpha=0.7, linewidth=2)
+    # Invert and normalize inertia (lower is better)
+    inertia_norm = 1 - (metrics['inertia'] - np.min(metrics['inertia'])) / \
+                   (np.max(metrics['inertia']) - np.min(metrics['inertia']))
     
-    # Calinski-Harabasz
-    ax3.plot(k_values, metrics['calinski'], 'mo-', linewidth=2, markersize=8)
-    ax3.set_xlabel('Number of Clusters')
-    ax3.set_ylabel('Calinski-Harabasz Score')
-    ax3.set_title('Calinski-Harabasz Score')
-    ax3.axvline(x=optimal_k, color='red', linestyle='--', alpha=0.7, linewidth=2)
-    ax3.axvline(x=35, color='orange', linestyle=':', alpha=0.7, linewidth=2)
+    # Normalize Calinski-Harabasz
+    calinski_norm = (metrics['calinski'] - np.min(metrics['calinski'])) / \
+                    (np.max(metrics['calinski']) - np.min(metrics['calinski']))
     
-    # Davies-Bouldin
-    ax4.plot(k_values, metrics['davies_bouldin'], 'co-', linewidth=2, markersize=8)
-    ax4.set_xlabel('Number of Clusters')
-    ax4.set_ylabel('Davies-Bouldin Index')
-    ax4.set_title('Davies-Bouldin Index (lower is better)')
-    ax4.axvline(x=optimal_k, color='red', linestyle='--', alpha=0.7, linewidth=2)
-    ax4.axvline(x=35, color='orange', linestyle=':', alpha=0.7, linewidth=2)
+    # Invert and normalize Davies-Bouldin (lower is better)
+    davies_norm = 1 - (metrics['davies_bouldin'] - np.min(metrics['davies_bouldin'])) / \
+                  (np.max(metrics['davies_bouldin']) - np.min(metrics['davies_bouldin']))
     
-    plt.suptitle('Cluster Validation Metrics', fontsize=18)
+    # Plot all metrics
+    ax1.plot(k_values, silhouette_norm, 'o-', linewidth=2.5, markersize=6, 
+             label='Silhouette Score', color='#2ecc71')
+    ax1.plot(k_values, inertia_norm, 's-', linewidth=2.5, markersize=6, 
+             label='Elbow Method (inverted)', color='#3498db')
+    ax1.plot(k_values, calinski_norm, '^-', linewidth=2.5, markersize=6, 
+             label='Calinski-Harabasz', color='#9b59b6')
+    ax1.plot(k_values, davies_norm, 'd-', linewidth=2.5, markersize=6, 
+             label='Davies-Bouldin (inverted)', color='#e74c3c')
+    
+    # Add vertical lines
+    ax1.axvline(x=optimal_k, color='darkred', linestyle='--', alpha=0.8, linewidth=2.5,
+                label=f'Optimal k={optimal_k}')
+    ax1.axvline(x=35, color='orange', linestyle=':', alpha=0.8, linewidth=2.5,
+                label='Industry (35)')
+    
+    # Highlight optimal region
+    ax1.axvspan(optimal_k-1, optimal_k+1, alpha=0.2, color='red')
+    
+    ax1.set_xlabel('Number of Clusters', fontsize=14)
+    ax1.set_ylabel('Normalized Score (higher is better)', fontsize=14)
+    ax1.set_title('Clustering Validation Metrics Comparison', fontsize=16, weight='bold')
+    ax1.legend(loc='best', fontsize=11)
+    ax1.grid(True, alpha=0.3)
+    ax1.set_xlim(k_values[0]-0.5, k_values[-1]+0.5)
+    ax1.set_ylim(-0.05, 1.05)
+    
+    # Right panel: Genre-based hierarchical clustering dendrogram
+    if features_scaled is not None and y_true is not None:
+        # Create genre-level features by averaging
+        unique_genres = np.unique(y_true)
+        genre_features = []
+        genre_labels = []
+        
+        for genre in unique_genres:
+            genre_mask = y_true == genre
+            genre_mean = np.mean(features_scaled[genre_mask], axis=0)
+            genre_features.append(genre_mean)
+            genre_labels.append(genre)
+        
+        genre_features = np.array(genre_features)
+        
+        # Compute linkage for genres
+        genre_linkage = linkage(genre_features, method='ward')
+        
+        # Create dendrogram with genre labels
+        dend = dendrogram(genre_linkage, 
+                         labels=genre_labels,
+                         color_threshold=None,
+                         ax=ax2,
+                         leaf_rotation=90,
+                         leaf_font_size=10)
+        
+        # Find appropriate cut heights
+        max_height = max(genre_linkage[:, 2])
+        
+        # Find height that gives optimal_k clusters
+        if optimal_k <= len(unique_genres):
+            sorted_heights = np.sort(genre_linkage[:, 2])
+            if optimal_k > 1:
+                optimal_height = sorted_heights[-(optimal_k-1)] - 0.01
+            else:
+                optimal_height = sorted_heights[-1] + 0.01
+            
+            ax2.axhline(y=optimal_height, color='darkred', linestyle='--', 
+                       linewidth=2.5, label=f'Cut for {optimal_k} clusters')
+        
+        # Add annotation for industry standard (35 genres)
+        # ax2.text(0.02, 0.02, 
+        #         f'Note: Industry uses {len(unique_genres)} genres\nHierarchy shows natural groupings',
+        #         transform=ax2.transAxes, 
+        #         bbox=dict(boxstyle='round,pad=0.5', facecolor='lightyellow', alpha=0.8),
+        #         fontsize=10)
+        
+        ax2.set_xlabel('Genre', fontsize=14)
+        ax2.set_ylabel('Distance', fontsize=14)
+        ax2.set_title('Genre Hierarchical Clustering', fontsize=16, weight='bold')
+        ax2.legend(loc='best', fontsize=11)
+        
+    else:
+        ax2.text(0.5, 0.5, 'Hierarchical clustering data not provided', 
+                ha='center', va='center', transform=ax2.transAxes, fontsize=14)
+        ax2.axis('off')
+    
+    plt.suptitle('Cluster Validation Analysis', fontsize=18, weight='bold')
     plt.tight_layout()
     
     if save:
-        plt.savefig('plots/validation_metrics.png', dpi=300, bbox_inches='tight')
-        print("Saved: plots/validation_metrics.png")
+        plt.savefig('plots/validation_metrics_combined.png', dpi=300, bbox_inches='tight')
+        print("Saved: plots/validation_metrics_combined.png")
     plt.show()
 
 
 def plot_tsne_comparison(X, natural_labels, forced_labels, y_true, save=True):
     """
-    Create t-SNE comparison plot.
+    Create t-SNE comparison plot with interpretable titles.
     
     Parameters:
     -----------
@@ -133,42 +206,72 @@ def plot_tsne_comparison(X, natural_labels, forced_labels, y_true, save=True):
     else:
         y_numeric = y_true
     
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(20, 6))
     
     # Natural clusters
     scatter1 = ax1.scatter(X_tsne[:, 0], X_tsne[:, 1], 
-                          c=natural_labels, cmap='tab20', 
-                          alpha=0.7, s=50, edgecolors='white', linewidth=0.5)
-    ax1.set_title(f'Natural Clusters ({len(np.unique(natural_labels))})')
-    ax1.set_xlabel('t-SNE 1')
-    ax1.set_ylabel('t-SNE 2')
+                          c=natural_labels, cmap='tab10', 
+                          alpha=0.7, s=30, edgecolors='white', linewidth=0.5)
+    ax1.set_title(f'What the Music Shows:\n{len(np.unique(natural_labels))} Natural Acoustic Families', 
+                  fontsize=14, weight='bold')
+    ax1.set_xlabel('t-SNE Dimension 1')
+    ax1.set_ylabel('t-SNE Dimension 2')
     ax1.set_xticks([])
     ax1.set_yticks([])
+    
+    # Add text annotation
+    ax1.text(0.02, 0.02, 'Data-driven clustering\nbased on acoustic features', 
+            transform=ax1.transAxes, 
+            bbox=dict(boxstyle='round,pad=0.5', facecolor='lightgreen', alpha=0.7),
+            fontsize=10)
     
     # Forced clusters
     scatter2 = ax2.scatter(X_tsne[:, 0], X_tsne[:, 1], 
                           c=forced_labels, cmap='rainbow', 
-                          alpha=0.7, s=50, edgecolors='white', linewidth=0.5)
-    ax2.set_title(f'Industry Clusters ({len(np.unique(forced_labels))})')
-    ax2.set_xlabel('t-SNE 1')
+                          alpha=0.7, s=30, edgecolors='white', linewidth=0.5)
+    ax2.set_title(f'What Industry Imposes:\n{len(np.unique(forced_labels))} Marketing Categories', 
+                  fontsize=14, weight='bold')
+    ax2.set_xlabel('t-SNE Dimension 1')
     ax2.set_xticks([])
     ax2.set_yticks([])
+    
+    # Add text annotation
+    ax2.text(0.02, 0.02, 'Forced to match\n35 industry genres', 
+            transform=ax2.transAxes, 
+            bbox=dict(boxstyle='round,pad=0.5', facecolor='lightyellow', alpha=0.7),
+            fontsize=10)
     
     # True genres
     scatter3 = ax3.scatter(X_tsne[:, 0], X_tsne[:, 1], 
                           c=y_numeric, cmap='rainbow', 
-                          alpha=0.7, s=50, edgecolors='white', linewidth=0.5)
-    ax3.set_title(f'True Genres ({len(np.unique(y_numeric))})')
-    ax3.set_xlabel('t-SNE 1')
+                          alpha=0.7, s=30, edgecolors='white', linewidth=0.5)
+    ax3.set_title(f'Market Reality:\n{len(np.unique(y_numeric))} Genre Labels', 
+                  fontsize=14, weight='bold')
+    ax3.set_xlabel('t-SNE Dimension 1')
     ax3.set_xticks([])
     ax3.set_yticks([])
     
-    plt.suptitle('Clustering Comparison: Natural vs Industry vs True Genres', fontsize=18)
+    # Add text annotation
+    ax3.text(0.02, 0.02, 'How tracks are\nactually labeled', 
+            transform=ax3.transAxes, 
+            bbox=dict(boxstyle='round,pad=0.5', facecolor='lightcoral', alpha=0.7),
+            fontsize=10)
+    
+    # Main title with key insight
+    plt.suptitle('The Phantom Genre Problem: Natural Clustering vs Commercial Categorization', 
+                fontsize=18, weight='bold')
+    
+    # Add bottom annotation
+    fig.text(0.5, 0.02, 
+            f'Key Finding: {len(np.unique(forced_labels)) - len(np.unique(natural_labels))} ' +
+            f'excess genre categories exist beyond natural acoustic boundaries',
+            ha='center', fontsize=12, style='italic', weight='bold', color='darkred')
+    
     plt.tight_layout()
     
     if save:
-        plt.savefig('plots/tsne_comparison.png', dpi=300, bbox_inches='tight')
-        print("Saved: plots/tsne_comparison.png")
+        plt.savefig('plots/tsne_comparison_interpretable.png', dpi=300, bbox_inches='tight')
+        print("Saved: plots/tsne_comparison_interpretable.png")
     plt.show()
     
     return X_tsne
@@ -212,152 +315,4 @@ def plot_genre_convergence_heatmap(convergence_matrix, save=True):
     if save:
         plt.savefig('plots/genre_convergence_heatmap.png', dpi=300, bbox_inches='tight')
         print("Saved: plots/genre_convergence_heatmap.png")
-    plt.show()
-
-
-def plot_cluster_comparison_bars(natural_k, forced_k, save=True):
-    """
-    Simple bar chart comparing natural vs forced clusters.
-    
-    Parameters:
-    -----------
-    natural_k : int
-        Number of natural clusters
-    forced_k : int
-        Number of forced clusters
-    save : bool
-        Whether to save the plot
-    """
-    ensure_plot_dir()
-    
-    fig, ax = plt.subplots(figsize=(8, 6))
-    
-    categories = ['Natural', 'Industry']
-    values = [natural_k, forced_k]
-    colors = ['#2ca02c', '#ff7f0e']
-    
-    bars = ax.bar(categories, values, color=colors, alpha=0.7, edgecolor='black', linewidth=2)
-    
-    # Add value labels
-    for bar, val in zip(bars, values):
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.5,
-                str(val), ha='center', va='bottom', fontsize=16, fontweight='bold')
-    
-    ax.set_ylabel('Number of Clusters', fontsize=14)
-    ax.set_title('Natural vs Industry Clustering', fontsize=16)
-    ax.set_ylim(0, max(values) * 1.2)
-    
-    # Add difference annotation
-    diff = forced_k - natural_k
-    ax.text(0.5, max(values) * 1.1, f'Over-segmentation: {diff} categories',
-            ha='center', transform=ax.transData, fontsize=12,
-            bbox=dict(boxstyle='round,pad=0.5', facecolor='yellow', alpha=0.5))
-    
-    plt.tight_layout()
-    
-    if save:
-        plt.savefig('plots/cluster_comparison.png', dpi=300, bbox_inches='tight')
-        print("Saved: plots/cluster_comparison.png")
-    plt.show()
-
-
-def create_summary_report_plot(results_dict, save=True):
-    """
-    Create a summary report visualization.
-    
-    Parameters:
-    -----------
-    results_dict : dict
-        Dictionary containing all results
-    save : bool
-        Whether to save the plot
-    """
-    ensure_plot_dir()
-    
-    fig = plt.figure(figsize=(16, 10))
-    
-    # Create grid
-    gs = fig.add_gridspec(2, 3, hspace=0.3, wspace=0.3)
-    
-    # Extract data
-    natural_k = results_dict.get('natural_clusters', 10)
-    forced_k = results_dict.get('forced_clusters', 35)
-    
-    # Panel 1: Cluster comparison
-    ax1 = fig.add_subplot(gs[0, 0])
-    categories = ['Natural', 'Industry']
-    values = [natural_k, forced_k]
-    colors = ['#2ca02c', '#ff7f0e']
-    
-    bars = ax1.bar(categories, values, color=colors, alpha=0.7)
-    ax1.set_ylabel('Number of Clusters')
-    ax1.set_title('Cluster Count')
-    
-    for bar, val in zip(bars, values):
-        ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.5,
-                str(val), ha='center', va='bottom', fontsize=14, fontweight='bold')
-    
-    # Panel 2: Metrics comparison
-    ax2 = fig.add_subplot(gs[0, 1])
-    if 'metrics' in results_dict:
-        metrics = results_dict['metrics']
-        metric_names = ['NMI\nvs Genres', 'ARI\nvs Genres']
-        natural_vals = [
-            metrics.get('natural_vs_genres_nmi', 0),
-            metrics.get('natural_vs_genres_ari', 0)
-        ]
-        forced_vals = [
-            metrics.get('forced_vs_genres_nmi', 0),
-            metrics.get('forced_vs_genres_ari', 0)
-        ]
-        
-        x = np.arange(len(metric_names))
-        width = 0.35
-        
-        ax2.bar(x - width/2, natural_vals, width, label='Natural', color='#2ca02c')
-        ax2.bar(x + width/2, forced_vals, width, label='Industry', color='#ff7f0e')
-        
-        ax2.set_ylabel('Score')
-        ax2.set_title('Clustering Quality')
-        ax2.set_xticks(x)
-        ax2.set_xticklabels(metric_names)
-        ax2.legend()
-        ax2.set_ylim(0, 1)
-    
-    # Panel 3: Method results
-    ax3 = fig.add_subplot(gs[0, 2])
-    if 'method_results' in results_dict:
-        methods = list(results_dict['method_results'].keys())
-        values = list(results_dict['method_results'].values())
-        
-        ax3.barh(methods, values, color='skyblue')
-        ax3.set_xlabel('Optimal Clusters')
-        ax3.set_title('By Method')
-        ax3.axvline(x=natural_k, color='red', linestyle='--', alpha=0.7)
-    
-    # Panel 4: Text summary
-    ax4 = fig.add_subplot(gs[1, :])
-    ax4.axis('off')
-    
-    summary_text = f"""
-    KEY FINDINGS:
-    • Natural acoustic families: {natural_k}
-    • Industry taxonomy: {forced_k} genres
-    • Over-segmentation: {forced_k - natural_k} excess categories
-    
-    INTERPRETATION:
-    The EDM industry has created {forced_k - natural_k} additional genre categories beyond
-    what the acoustic features naturally support. This suggests significant
-    marketing-driven categorization rather than purely musical differences.
-    """
-    
-    ax4.text(0.05, 0.95, summary_text, transform=ax4.transAxes,
-            fontsize=12, verticalalignment='top',
-            bbox=dict(boxstyle='round,pad=1', facecolor='lightgray', alpha=0.3))
-    
-    plt.suptitle('EDM Genre Analysis Summary', fontsize=18, fontweight='bold')
-    
-    if save:
-        plt.savefig('plots/summary_report.png', dpi=300, bbox_inches='tight')
-        print("Saved: plots/summary_report.png")
     plt.show()

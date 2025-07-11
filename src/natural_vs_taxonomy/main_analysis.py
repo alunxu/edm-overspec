@@ -18,8 +18,7 @@ from clustering_algorithms import EDMClusterer
 from experiments import NaturalClusterExperiment, GenreConvergenceExperiment
 from visualization import (
     plot_validation_metrics, plot_tsne_comparison,
-    plot_genre_convergence_heatmap, plot_cluster_comparison_bars,
-    create_summary_report_plot
+    plot_genre_convergence_heatmap
 )
 from utils import ensure_directories, get_output_paths, save_dataframe_with_info, create_analysis_summary
 
@@ -109,27 +108,17 @@ def run_complete_analysis():
     print("CREATING VISUALIZATIONS")
     print("="*60)
     
-    # Plot validation metrics
+    # Plot validation metrics with genre-based dendrogram
     if clusterer.natural_clusterer:
-        plot_validation_metrics(clusterer.natural_clusterer.results)
+        plot_validation_metrics(clusterer.natural_clusterer.results, 
+                              features_scaled=X_selected.values,
+                              y_true=y.values)
     
     # Plot t-SNE comparison
     plot_tsne_comparison(X_selected.values, natural_labels, forced_labels, y.values)
     
     # Plot genre convergence
     plot_genre_convergence_heatmap(exp2_results['convergence_matrix'])
-    
-    # Plot cluster comparison
-    plot_cluster_comparison_bars(natural_k, 35)
-    
-    # Create summary report
-    results_summary = {
-        'natural_clusters': natural_k,
-        'forced_clusters': 35,
-        'metrics': exp1_results['metrics'],
-        'method_results': clusterer.natural_clusterer.results['method_results']
-    }
-    create_summary_report_plot(results_summary)
     
     # 7. Save results
     print("\n" + "="*60)
@@ -275,16 +264,15 @@ results/
 │   ├── genre_fragmentation.csv : Genre cluster distribution
 │   └── feature_importance_scores.csv : Selected features
 ├── pkl/
-│   └── edm_complete_analysis_results.pkl : Complete results
+│   ├── edm_complete_analysis_results.pkl : Complete results
+│   └── genre_merge_analysis.pkl : Hierarchical merge analysis
 └── reports/
     └── edm_analysis_report.txt : This report
 
 plots/
-├── validation_metrics.png : Cluster validation
-├── tsne_comparison.png : Clustering comparison
-├── genre_convergence_heatmap.png : Genre similarity
-├── cluster_comparison.png : Natural vs Industry
-└── summary_report.png : Complete summary
+├── validation_metrics_combined.png : Cluster validation with genre dendrogram
+├── tsne_comparison_interpretable.png : Clustering comparison
+└── genre_convergence_heatmap.png : Genre similarity matrix
 
 {'='*60}
     """
