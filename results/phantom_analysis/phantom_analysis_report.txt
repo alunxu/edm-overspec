@@ -1,0 +1,30 @@
+PHANTOM GENRE ANALYSIS SUMMARY
+==================================================
+
+Total phantom pairs found: 561
+Genres in 3+ clusters: 35
+Average fragmentation: 5.31
+
+Top 10 Phantom Pairs:
+  Hard Dance - Hardcore - Neo Rave <-> Hard Techno: 0.871
+  Minimal - Deep Tech <-> Tech House: 0.859
+  140 - Deep Dubstep - Grime <-> Trap - Future Bass: 0.829
+  Organic House <-> Progressive House: 0.806
+  Deep House <-> Jackin House: 0.776
+  Dubstep <-> Trap - Future Bass: 0.774
+  Deep House <-> Minimal - Deep Tech: 0.766
+  House <-> Jackin House: 0.759
+  Mainstage <-> Trance (Main Floor): 0.749
+  Mainstage <-> Techno (Peak Time - Driving): 0.736
+
+Most Fragmented Genres:
+  Ambient - Experimental: 8.0 clusters
+  Downtempo: 7.0 clusters
+  Bass - Club: 7.0 clusters
+  Nu Disco - Disco: 7.0 clusters
+  Indie Dance: 7.0 clusters
+  Trance (Main Floor): 6.0 clusters
+  Breaks - Breakbeat - UK Bass: 6.0 clusters
+  Deep House: 6.0 clusters
+  Progressive House: 6.0 clusters
+  Electro (Classic - Detroit - Modern): 6.0 clusters

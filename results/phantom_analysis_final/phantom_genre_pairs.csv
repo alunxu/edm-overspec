@@ -1,0 +1,117 @@
+genre1,genre2,similarity,same_family,family
+Bass House,Trance (Main Floor),0.9029126213592233,False,House-Trance
+Dance - Pop,Mainstage,0.8910891089108911,True,Dance/Pop
+Afro House,Jackin House,0.8846153846153846,True,House
+Bass House,Funky House,0.8846153846153846,True,House
+Tech House,Trance (Raw - Deep - Hypnotic),0.883495145631068,False,House-Trance
+Indie Dance,Tech House,0.883495145631068,False,Dance/Pop-House
+Hard Dance - Hardcore - Neo Rave,Jackin House,0.875,False,Hard Styles-House
+Afro House,Melodic House & Techno,0.8737864077669902,False,House-Techno
+Bass House,Techno (Peak Time - Driving),0.8737864077669902,False,House-Techno
+Jackin House,Melodic House & Techno,0.8725490196078431,False,House-Techno
+Breaks - Breakbeat - UK Bass,Melodic House & Techno,0.8712871287128713,False,Breaks-Techno
+Mainstage,Melodic House & Techno,0.8712871287128713,False,Dance/Pop-Techno
+Funky House,Trance (Main Floor),0.8666666666666667,False,House-Trance
+Afro House,Mainstage,0.8653846153846154,False,House-Dance/Pop
+Afro House,Electronica,0.8653846153846154,False,House-Other
+Breaks - Breakbeat - UK Bass,Jackin House,0.8640776699029126,False,Breaks-House
+Jackin House,Mainstage,0.8640776699029126,False,House-Dance/Pop
+Progressive House,Tech House,0.8627450980392157,True,House
+Indie Dance,Progressive House,0.8613861386138614,False,Dance/Pop-House
+Techno (Peak Time - Driving),Trance (Main Floor),0.8557692307692307,False,Techno-Trance
+Indie Dance,Organic House,0.8543689320388349,False,Dance/Pop-House
+Electronica,House,0.8543689320388349,False,Other-House
+Afro House,Breaks - Breakbeat - UK Bass,0.8476190476190476,False,House-Breaks
+Breaks - Breakbeat - UK Bass,Mainstage,0.8446601941747572,False,Breaks-Dance/Pop
+Progressive House,Trance (Raw - Deep - Hypnotic),0.8431372549019608,False,House-Trance
+Minimal - Deep Tech,Organic House,0.8380952380952381,False,Underground-House
+Deep House,Progressive House,0.8252427184466019,True,House
+Afro House,Dance - Pop,0.822429906542056,False,House-Dance/Pop
+Afro House,House,0.822429906542056,True,House
+Funky House,Techno (Peak Time - Driving),0.8207547169811321,False,House-Techno
+Hard Dance - Hardcore - Neo Rave,Mainstage,0.8207547169811321,False,Hard Styles-Dance/Pop
+Drum & Bass,Hard Dance - Hardcore - Neo Rave,0.819047619047619,False,Bass Music-Hard Styles
+Hard Techno,Mainstage,0.819047619047619,False,Techno-Dance/Pop
+Drum & Bass,UK Garage - Bassline,0.8173076923076923,True,Bass Music
+Funky House,Hard Techno,0.8130841121495327,False,House-Techno
+Indie Dance,Trance (Raw - Deep - Hypnotic),0.8113207547169812,False,Dance/Pop-Trance
+Hard Techno,Melodic House & Techno,0.8095238095238095,True,Techno
+Psy-Trance,Trance (Raw - Deep - Hypnotic),0.8037383177570093,True,Trance
+House,Jackin House,0.8037383177570093,True,House
+Dance - Pop,Jackin House,0.8037383177570093,False,Dance/Pop-House
+Organic House,Tech House,0.8037383177570093,True,House
+Electronica,Nu Disco - Disco,0.8018867924528302,False,Other-Underground
+Dance - Pop,Melodic House & Techno,0.7924528301886793,False,Dance/Pop-Techno
+140 - Deep Dubstep - Grime,Trap - Future Bass,0.7904761904761904,True,Bass Music
+Bass House,Breaks - Breakbeat - UK Bass,0.7870370370370371,False,House-Breaks
+Funky House,Mainstage,0.7870370370370371,False,House-Dance/Pop
+Breaks - Breakbeat - UK Bass,Hard Techno,0.7850467289719626,False,Breaks-Techno
+Progressive House,Psy-Trance,0.7830188679245284,False,House-Trance
+Organic House,Progressive House,0.780952380952381,True,House
+Electro (Classic - Detroit - Modern),Techno (Raw - Deep - Hypnotic),0.7798165137614679,False,Other-Techno
+Dance - Pop,Hard Dance - Hardcore - Neo Rave,0.7798165137614679,False,Dance/Pop-Hard Styles
+Deep House,Tech House,0.7798165137614679,True,House
+Indie Dance,Minimal - Deep Tech,0.7798165137614679,False,Dance/Pop-Underground
+Bass House,Melodic House & Techno,0.7777777777777778,False,House-Techno
+Hard Dance - Hardcore - Neo Rave,Melodic House & Techno,0.7777777777777778,False,Hard Styles-Techno
+Funky House,Melodic House & Techno,0.7777777777777778,False,House-Techno
+Deep House,Indie Dance,0.7777777777777778,False,House-Dance/Pop
+Afro House,Hard Dance - Hardcore - Neo Rave,0.7747747747747747,False,House-Hard Styles
+Breaks - Breakbeat - UK Bass,Hard Dance - Hardcore - Neo Rave,0.7706422018348624,False,Breaks-Hard Styles
+Mainstage,Trance (Main Floor),0.7706422018348624,False,Dance/Pop-Trance
+Bass House,Mainstage,0.7706422018348624,False,House-Dance/Pop
+Breaks - Breakbeat - UK Bass,Funky House,0.7706422018348624,False,Breaks-House
+Hard Techno,Jackin House,0.7706422018348624,False,Techno-House
+Breaks - Breakbeat - UK Bass,Dance - Pop,0.7685185185185185,False,Breaks-Dance/Pop
+Breaks - Breakbeat - UK Bass,Deep House,0.7685185185185185,False,Breaks-House
+Electronica,Melodic House & Techno,0.7663551401869159,False,Other-Techno
+Hard Dance - Hardcore - Neo Rave,Hard Techno,0.7636363636363637,False,Hard Styles-Techno
+Electronica,Jackin House,0.7614678899082569,False,Other-House
+Deep House,House,0.7614678899082569,True,House
+Melodic House & Techno,Trance (Main Floor),0.7614678899082569,False,Techno-Trance
+House,Melodic House & Techno,0.7592592592592593,False,House-Techno
+Bass House,Jackin House,0.7567567567567568,True,House
+Breaks - Breakbeat - UK Bass,Trance (Main Floor),0.7545454545454545,False,Breaks-Trance
+Organic House,Trance (Raw - Deep - Hypnotic),0.7522935779816514,False,House-Trance
+Breaks - Breakbeat - UK Bass,House,0.7522935779816514,False,Breaks-House
+Funky House,Hard Dance - Hardcore - Neo Rave,0.75,False,House-Hard Styles
+Dance - Pop,Hard Techno,0.7454545454545455,False,Dance/Pop-Techno
+Hard Techno,UK Garage - Bassline,0.7454545454545455,False,Techno-Bass Music
+Electronica,Mainstage,0.7431192660550459,False,Other-Dance/Pop
+Funky House,Jackin House,0.7410714285714286,True,House
+Psy-Trance,Tech House,0.7410714285714286,False,Trance-House
+Bass House,Psy-Trance,0.7410714285714286,False,House-Trance
+Deep House,Psy-Trance,0.7387387387387387,False,House-Trance
+Deep House,Downtempo,0.7383177570093458,False,House-Underground
+Dance - Pop,Electronica,0.7363636363636363,False,Dance/Pop-Other
+House,Mainstage,0.7363636363636363,False,House-Dance/Pop
+Bass House,Dance - Pop,0.7321428571428571,False,House-Dance/Pop
+Bass House,Hard Techno,0.7321428571428571,False,House-Techno
+Hard Dance - Hardcore - Neo Rave,UK Garage - Bassline,0.7321428571428571,False,Hard Styles-Bass Music
+Psy-Trance,Techno (Peak Time - Driving),0.7297297297297297,False,Trance-Techno
+Breaks - Breakbeat - UK Bass,Electronica,0.7272727272727273,False,Breaks-Other
+Afro House,Hard Techno,0.7256637168141593,False,House-Techno
+Psy-Trance,Trance (Main Floor),0.7256637168141593,True,Trance
+Afro House,Deep House,0.7256637168141593,True,House
+Minimal - Deep Tech,Tech House,0.7192982456140351,False,Underground-House
+Drum & Bass,House,0.7181818181818181,False,Bass Music-House
+Drum & Bass,Nu Disco - Disco,0.7181818181818181,False,Bass Music-Underground
+Dance - Pop,Trance (Main Floor),0.7168141592920354,False,Dance/Pop-Trance
+Hard Techno,Trance (Main Floor),0.7168141592920354,False,Techno-Trance
+Hard Dance - Hardcore - Neo Rave,House,0.7168141592920354,False,Hard Styles-House
+Dance - Pop,Funky House,0.7168141592920354,False,Dance/Pop-House
+Hard Dance - Hardcore - Neo Rave,Nu Disco - Disco,0.7168141592920354,False,Hard Styles-Underground
+Deep House,Trance (Raw - Deep - Hypnotic),0.7142857142857143,False,House-Trance
+House,UK Garage - Bassline,0.7142857142857143,False,House-Bass Music
+House,Nu Disco - Disco,0.7142857142857143,False,House-Underground
+Afro House,Bass House,0.7130434782608696,True,House
+Drum & Bass,Jackin House,0.7117117117117117,False,Bass Music-House
+Deep House,Melodic House & Techno,0.7117117117117117,False,House-Techno
+Afro House,Nu Disco - Disco,0.7105263157894737,False,House-Underground
+Jackin House,Trance (Main Floor),0.7105263157894737,False,House-Trance
+Deep House,Jackin House,0.7079646017699115,True,House
+Jackin House,UK Garage - Bassline,0.7079646017699115,False,House-Bass Music
+Downtempo,House,0.7064220183486238,False,Underground-House
+Electronica,UK Garage - Bassline,0.7053571428571429,False,Other-Bass Music
+Minimal - Deep Tech,Techno (Raw - Deep - Hypnotic),0.7043478260869566,False,Underground-Techno
+Drum & Bass,Hard Techno,0.7027027027027027,False,Bass Music-Techno

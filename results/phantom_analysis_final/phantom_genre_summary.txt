@@ -1,0 +1,38 @@
+PHANTOM GENRE ANALYSIS SUMMARY
+============================================================
+
+Total genre pairs with >70% co-clustering: 116
+Within same family: 21
+Cross-family phantoms: 95
+
+TOP PHANTOM GENRE PAIRS:
+------------------------------------------------------------
+Bass House ↔ Trance (Main Floor): 0.903
+Dance - Pop ↔ Mainstage: 0.891 (both Dance/Pop)
+Afro House ↔ Jackin House: 0.885 (both House)
+Bass House ↔ Funky House: 0.885 (both House)
+Tech House ↔ Trance (Raw - Deep - Hypnotic): 0.883
+Indie Dance ↔ Tech House: 0.883
+Hard Dance - Hardcore - Neo Rave ↔ Jackin House: 0.875
+Afro House ↔ Melodic House & Techno: 0.874
+Bass House ↔ Techno (Peak Time - Driving): 0.874
+Jackin House ↔ Melodic House & Techno: 0.873
+Breaks - Breakbeat - UK Bass ↔ Melodic House & Techno: 0.871
+Mainstage ↔ Melodic House & Techno: 0.871
+Funky House ↔ Trance (Main Floor): 0.867
+Afro House ↔ Mainstage: 0.865
+Afro House ↔ Electronica: 0.865
+
+
+MOST FRAGMENTED GENRES:
+------------------------------------------------------------
+Jackin House: appears in 15 phantom pairs
+Melodic House & Techno: appears in 13 phantom pairs
+Breaks - Breakbeat - UK Bass: appears in 13 phantom pairs
+Mainstage: appears in 12 phantom pairs
+Afro House: appears in 12 phantom pairs
+Hard Dance - Hardcore - Neo Rave: appears in 12 phantom pairs
+House: appears in 12 phantom pairs
+Hard Techno: appears in 12 phantom pairs
+Bass House: appears in 11 phantom pairs
+Dance - Pop: appears in 11 phantom pairs

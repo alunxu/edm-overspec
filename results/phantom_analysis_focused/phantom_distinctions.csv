@@ -1,0 +1,297 @@
+genre1,genre2,similarity,category
+Bass House,Trance (Main Floor),0.9029126213592233,high
+Dance - Pop,Mainstage,0.8910891089108911,high
+Afro House,Jackin House,0.8846153846153846,high
+Bass House,Funky House,0.8846153846153846,high
+Indie Dance,Tech House,0.883495145631068,high
+Tech House,Trance (Raw - Deep - Hypnotic),0.883495145631068,high
+Hard Dance - Hardcore - Neo Rave,Jackin House,0.875,high
+Afro House,Melodic House & Techno,0.8737864077669902,high
+Bass House,Techno (Peak Time - Driving),0.8737864077669902,high
+Jackin House,Melodic House & Techno,0.8725490196078431,high
+Breaks - Breakbeat - UK Bass,Melodic House & Techno,0.8712871287128713,high
+Mainstage,Melodic House & Techno,0.8712871287128713,high
+Funky House,Trance (Main Floor),0.8666666666666667,high
+Afro House,Electronica,0.8653846153846154,high
+Afro House,Mainstage,0.8653846153846154,high
+Breaks - Breakbeat - UK Bass,Jackin House,0.8640776699029126,high
+Jackin House,Mainstage,0.8640776699029126,high
+Progressive House,Tech House,0.8627450980392157,high
+Indie Dance,Progressive House,0.8613861386138614,high
+Techno (Peak Time - Driving),Trance (Main Floor),0.8557692307692307,high
+Electronica,House,0.8543689320388349,high
+Indie Dance,Organic House,0.8543689320388349,high
+Afro House,Breaks - Breakbeat - UK Bass,0.8476190476190476,high
+Breaks - Breakbeat - UK Bass,Mainstage,0.8446601941747572,high
+Progressive House,Trance (Raw - Deep - Hypnotic),0.8431372549019608,high
+Minimal - Deep Tech,Organic House,0.8380952380952381,high
+Deep House,Progressive House,0.8252427184466019,high
+Afro House,Dance - Pop,0.822429906542056,high
+Afro House,House,0.822429906542056,high
+Funky House,Techno (Peak Time - Driving),0.8207547169811321,high
+Hard Dance - Hardcore - Neo Rave,Mainstage,0.8207547169811321,high
+Drum & Bass,Hard Dance - Hardcore - Neo Rave,0.819047619047619,high
+Hard Techno,Mainstage,0.819047619047619,high
+Drum & Bass,UK Garage - Bassline,0.8173076923076923,high
+Funky House,Hard Techno,0.8130841121495327,high
+Indie Dance,Trance (Raw - Deep - Hypnotic),0.8113207547169812,high
+Hard Techno,Melodic House & Techno,0.8095238095238095,high
+Dance - Pop,Jackin House,0.8037383177570093,high
+House,Jackin House,0.8037383177570093,high
+Organic House,Tech House,0.8037383177570093,high
+Psy-Trance,Trance (Raw - Deep - Hypnotic),0.8037383177570093,high
+Electronica,Nu Disco - Disco,0.8018867924528302,high
+Dance - Pop,Melodic House & Techno,0.7924528301886793,medium
+140 - Deep Dubstep - Grime,Trap - Future Bass,0.7904761904761904,medium
+Bass House,Breaks - Breakbeat - UK Bass,0.7870370370370371,medium
+Funky House,Mainstage,0.7870370370370371,medium
+Breaks - Breakbeat - UK Bass,Hard Techno,0.7850467289719626,medium
+Progressive House,Psy-Trance,0.7830188679245284,medium
+Organic House,Progressive House,0.780952380952381,medium
+Dance - Pop,Hard Dance - Hardcore - Neo Rave,0.7798165137614679,medium
+Deep House,Tech House,0.7798165137614679,medium
+Electro (Classic - Detroit - Modern),Techno (Raw - Deep - Hypnotic),0.7798165137614679,medium
+Indie Dance,Minimal - Deep Tech,0.7798165137614679,medium
+Bass House,Melodic House & Techno,0.7777777777777778,medium
+Deep House,Indie Dance,0.7777777777777778,medium
+Funky House,Melodic House & Techno,0.7777777777777778,medium
+Hard Dance - Hardcore - Neo Rave,Melodic House & Techno,0.7777777777777778,medium
+Afro House,Hard Dance - Hardcore - Neo Rave,0.7747747747747747,medium
+Bass House,Mainstage,0.7706422018348624,medium
+Breaks - Breakbeat - UK Bass,Funky House,0.7706422018348624,medium
+Breaks - Breakbeat - UK Bass,Hard Dance - Hardcore - Neo Rave,0.7706422018348624,medium
+Hard Techno,Jackin House,0.7706422018348624,medium
+Mainstage,Trance (Main Floor),0.7706422018348624,medium
+Breaks - Breakbeat - UK Bass,Dance - Pop,0.7685185185185185,medium
+Breaks - Breakbeat - UK Bass,Deep House,0.7685185185185185,medium
+Electronica,Melodic House & Techno,0.7663551401869159,medium
+Hard Dance - Hardcore - Neo Rave,Hard Techno,0.7636363636363637,medium
+Deep House,House,0.7614678899082569,medium
+Electronica,Jackin House,0.7614678899082569,medium
+Melodic House & Techno,Trance (Main Floor),0.7614678899082569,medium
+House,Melodic House & Techno,0.7592592592592593,medium
+Bass House,Jackin House,0.7567567567567568,medium
+Breaks - Breakbeat - UK Bass,Trance (Main Floor),0.7545454545454545,medium
+Breaks - Breakbeat - UK Bass,House,0.7522935779816514,medium
+Organic House,Trance (Raw - Deep - Hypnotic),0.7522935779816514,medium
+Funky House,Hard Dance - Hardcore - Neo Rave,0.75,medium
+Dance - Pop,Hard Techno,0.7454545454545455,medium
+Hard Techno,UK Garage - Bassline,0.7454545454545455,medium
+Electronica,Mainstage,0.7431192660550459,medium
+Bass House,Psy-Trance,0.7410714285714286,medium
+Funky House,Jackin House,0.7410714285714286,medium
+Psy-Trance,Tech House,0.7410714285714286,medium
+Deep House,Psy-Trance,0.7387387387387387,medium
+Deep House,Downtempo,0.7383177570093458,medium
+Dance - Pop,Electronica,0.7363636363636363,medium
+House,Mainstage,0.7363636363636363,medium
+Bass House,Dance - Pop,0.7321428571428571,medium
+Bass House,Hard Techno,0.7321428571428571,medium
+Hard Dance - Hardcore - Neo Rave,UK Garage - Bassline,0.7321428571428571,medium
+Psy-Trance,Techno (Peak Time - Driving),0.7297297297297297,medium
+Breaks - Breakbeat - UK Bass,Electronica,0.7272727272727273,medium
+Afro House,Deep House,0.7256637168141593,medium
+Afro House,Hard Techno,0.7256637168141593,medium
+Psy-Trance,Trance (Main Floor),0.7256637168141593,medium
+Minimal - Deep Tech,Tech House,0.7192982456140351,medium
+Drum & Bass,House,0.7181818181818181,medium
+Drum & Bass,Nu Disco - Disco,0.7181818181818181,medium
+Dance - Pop,Funky House,0.7168141592920354,medium
+Dance - Pop,Trance (Main Floor),0.7168141592920354,medium
+Hard Dance - Hardcore - Neo Rave,House,0.7168141592920354,medium
+Hard Dance - Hardcore - Neo Rave,Nu Disco - Disco,0.7168141592920354,medium
+Hard Techno,Trance (Main Floor),0.7168141592920354,medium
+Deep House,Trance (Raw - Deep - Hypnotic),0.7142857142857143,medium
+House,Nu Disco - Disco,0.7142857142857143,medium
+House,UK Garage - Bassline,0.7142857142857143,medium
+Afro House,Bass House,0.7130434782608696,medium
+Deep House,Melodic House & Techno,0.7117117117117117,medium
+Drum & Bass,Jackin House,0.7117117117117117,medium
+Afro House,Nu Disco - Disco,0.7105263157894737,medium
+Jackin House,Trance (Main Floor),0.7105263157894737,medium
+Deep House,Jackin House,0.7079646017699115,medium
+Jackin House,UK Garage - Bassline,0.7079646017699115,medium
+Downtempo,House,0.7064220183486238,medium
+Electronica,UK Garage - Bassline,0.7053571428571429,medium
+Minimal - Deep Tech,Techno (Raw - Deep - Hypnotic),0.7043478260869566,medium
+Drum & Bass,Hard Techno,0.7027027027027027,medium
+Breaks - Breakbeat - UK Bass,Psy-Trance,0.6991150442477876,medium
+Afro House,Funky House,0.6982758620689655,medium
+Downtempo,Electronica,0.6972477064220184,medium
+Breaks - Breakbeat - UK Bass,Techno (Peak Time - Driving),0.6964285714285714,medium
+Mainstage,Techno (Peak Time - Driving),0.6964285714285714,medium
+Drum & Bass,Electronica,0.6936936936936937,medium
+Indie Dance,Psy-Trance,0.6929824561403509,medium
+Jackin House,Nu Disco - Disco,0.6929824561403509,medium
+Melodic House & Techno,Techno (Peak Time - Driving),0.6875,medium
+Bass House,Deep House,0.6869565217391305,medium
+Dance - Pop,House,0.6842105263157895,medium
+Afro House,Trance (Main Floor),0.6837606837606838,medium
+Minimal - Deep Tech,Progressive House,0.6814159292035398,medium
+Downtempo,Minimal - Deep Tech,0.6785714285714286,medium
+Electronica,Hard Dance - Hardcore - Neo Rave,0.6782608695652174,medium
+Organic House,Techno (Raw - Deep - Hypnotic),0.6782608695652174,medium
+Downtempo,Indie Dance,0.6756756756756757,medium
+Downtempo,Nu Disco - Disco,0.6756756756756757,medium
+Deep House,Organic House,0.6754385964912281,medium
+Bass House,Hard Dance - Hardcore - Neo Rave,0.6752136752136753,medium
+Afro House,Downtempo,0.672566371681416,medium
+Deep House,Minimal - Deep Tech,0.6724137931034483,medium
+Electro (Classic - Detroit - Modern),Minimal - Deep Tech,0.6724137931034483,medium
+Hard Techno,House,0.6695652173913044,medium
+Funky House,Psy-Trance,0.6666666666666666,medium
+Drum & Bass,Mainstage,0.6637168141592921,medium
+Hard Dance - Hardcore - Neo Rave,Trance (Main Floor),0.6610169491525424,medium
+Breaks - Breakbeat - UK Bass,Trance (Raw - Deep - Hypnotic),0.6608695652173913,medium
+Dance - Pop,Techno (Peak Time - Driving),0.6608695652173913,medium
+Deep House,Electronica,0.6608695652173913,medium
+Deep House,Mainstage,0.6608695652173913,medium
+Electronica,Hard Techno,0.6608695652173913,medium
+Hard Techno,Techno (Peak Time - Driving),0.6608695652173913,medium
+Mainstage,UK Garage - Bassline,0.6608695652173913,medium
+Afro House,Drum & Bass,0.6551724137931034,medium
+Dance - Pop,Nu Disco - Disco,0.6551724137931034,medium
+Jackin House,Techno (Peak Time - Driving),0.6551724137931034,medium
+Nu Disco - Disco,UK Garage - Bassline,0.6551724137931034,medium
+Breaks - Breakbeat - UK Bass,Progressive House,0.6548672566371682,medium
+Afro House,UK Garage - Bassline,0.652542372881356,medium
+Melodic House & Techno,Nu Disco - Disco,0.6521739130434783,medium
+Breaks - Breakbeat - UK Bass,Tech House,0.6495726495726496,moderate
+Electro (Classic - Detroit - Modern),Organic House,0.646551724137931,moderate
+Mainstage,Nu Disco - Disco,0.646551724137931,moderate
+Melodic House & Techno,Psy-Trance,0.646551724137931,moderate
+Minimal - Deep Tech,Trance (Raw - Deep - Hypnotic),0.6440677966101694,moderate
+Downtempo,Melodic House & Techno,0.6428571428571429,moderate
+Dance - Pop,Deep House,0.6410256410256411,moderate
+House,Indie Dance,0.6410256410256411,moderate
+Organic House,Psy-Trance,0.6410256410256411,moderate
+Downtempo,Progressive House,0.6396396396396397,moderate
+Downtempo,Organic House,0.6371681415929203,moderate
+Bass House,House,0.6302521008403361,moderate
+Deep House,Trance (Main Floor),0.6302521008403361,moderate
+Funky House,House,0.6302521008403361,moderate
+House,Tech House,0.6302521008403361,moderate
+Dance - Pop,Drum & Bass,0.6293103448275862,moderate
+Ambient - Experimental,DJ Tools,0.6283185840707964,moderate
+Afro House,Tech House,0.628099173553719,moderate
+Dance - Pop,UK Garage - Bassline,0.6271186440677966,moderate
+Deep House,Hard Techno,0.6271186440677966,moderate
+Melodic House & Techno,Tech House,0.6271186440677966,moderate
+Drum & Bass,Melodic House & Techno,0.6260869565217392,moderate
+Melodic House & Techno,Trance (Raw - Deep - Hypnotic),0.6239316239316239,moderate
+Melodic House & Techno,UK Garage - Bassline,0.6239316239316239,moderate
+Breaks - Breakbeat - UK Bass,Downtempo,0.6228070175438597,moderate
+Hard Dance - Hardcore - Neo Rave,Techno (Peak Time - Driving),0.6218487394957983,moderate
+Breaks - Breakbeat - UK Bass,Drum & Bass,0.6206896551724138,moderate
+House,Progressive House,0.6206896551724138,moderate
+Breaks - Breakbeat - UK Bass,Indie Dance,0.6186440677966102,moderate
+Breaks - Breakbeat - UK Bass,UK Garage - Bassline,0.6186440677966102,moderate
+Drum & Bass,Funky House,0.6186440677966102,moderate
+Afro House,Techno (Peak Time - Driving),0.6166666666666667,moderate
+Deep House,Hard Dance - Hardcore - Neo Rave,0.6166666666666667,moderate
+Funky House,UK Garage - Bassline,0.6166666666666667,moderate
+Jackin House,Psy-Trance,0.6166666666666667,moderate
+Mainstage,Psy-Trance,0.6134453781512605,moderate
+Jackin House,Tech House,0.6115702479338843,moderate
+Bass - Club,Electro (Classic - Detroit - Modern),0.6083333333333333,moderate
+Bass House,Electronica,0.6083333333333333,moderate
+Electronica,Funky House,0.6083333333333333,moderate
+Downtempo,Tech House,0.6068376068376068,moderate
+Afro House,Psy-Trance,0.6065573770491803,moderate
+Afro House,Progressive House,0.6050420168067226,moderate
+Breaks - Breakbeat - UK Bass,Nu Disco - Disco,0.6050420168067226,moderate
+Melodic House & Techno,Progressive House,0.603448275862069,moderate
+Bass House,Trance (Raw - Deep - Hypnotic),0.6033057851239669,moderate
+Deep House,Funky House,0.6033057851239669,moderate
+House,Trance (Main Floor),0.6033057851239669,moderate
+Bass - Club,Minimal - Deep Tech,0.5983606557377049,moderate
+House,Psy-Trance,0.5950413223140496,moderate
+Jackin House,Trance (Raw - Deep - Hypnotic),0.5950413223140496,moderate
+Bass House,Tech House,0.5934959349593496,moderate
+Deep House,Techno (Peak Time - Driving),0.5916666666666667,moderate
+Techno (Peak Time - Driving),Trance (Raw - Deep - Hypnotic),0.5916666666666667,moderate
+Indie Dance,Techno (Raw - Deep - Hypnotic),0.5901639344262295,moderate
+Jackin House,Progressive House,0.5882352941176471,moderate
+Afro House,Trance (Raw - Deep - Hypnotic),0.5853658536585366,moderate
+Downtempo,Jackin House,0.5847457627118644,moderate
+Downtempo,Psy-Trance,0.5847457627118644,moderate
+Dance - Pop,Psy-Trance,0.5819672131147541,moderate
+Electronica,Trance (Main Floor),0.5819672131147541,moderate
+Hard Techno,Psy-Trance,0.5819672131147541,moderate
+Tech House,Techno (Peak Time - Driving),0.5819672131147541,moderate
+Downtempo,Mainstage,0.5811965811965812,moderate
+House,Organic House,0.5785123966942148,moderate
+Mainstage,Trance (Raw - Deep - Hypnotic),0.5785123966942148,moderate
+Trance (Main Floor),Trance (Raw - Deep - Hypnotic),0.5772357723577236,moderate
+Electro (Classic - Detroit - Modern),Indie Dance,0.5737704918032787,moderate
+House,Trance (Raw - Deep - Hypnotic),0.5737704918032787,moderate
+Afro House,Indie Dance,0.5725806451612904,moderate
+Bass House,Progressive House,0.5702479338842975,moderate
+Indie Dance,Melodic House & Techno,0.5702479338842975,moderate
+Mainstage,Tech House,0.5691056910569106,moderate
+Tech House,Techno (Raw - Deep - Hypnotic),0.568,moderate
+Downtempo,Trance (Raw - Deep - Hypnotic),0.5630252100840336,moderate
+Dance - Pop,Trance (Raw - Deep - Hypnotic),0.5609756097560976,moderate
+Hard Techno,Nu Disco - Disco,0.5609756097560976,moderate
+Bass - Club,Downtempo,0.5583333333333333,moderate
+Progressive House,Techno (Peak Time - Driving),0.5583333333333333,moderate
+Progressive House,Techno (Raw - Deep - Hypnotic),0.5573770491803278,moderate
+Progressive House,Trance (Main Floor),0.5573770491803278,moderate
+Bass - Club,Deep House,0.5564516129032258,moderate
+Bass - Club,Indie Dance,0.5564516129032258,moderate
+Indie Dance,Jackin House,0.5564516129032258,moderate
+Electronica,Indie Dance,0.5528455284552846,moderate
+Dance - Pop,Tech House,0.552,moderate
+House,Minimal - Deep Tech,0.552,moderate
+Dance - Pop,Downtempo,0.55,moderate
+Deep House,Drum & Bass,0.5491803278688525,moderate
+Deep House,Nu Disco - Disco,0.5483870967741935,moderate
+Deep House,UK Garage - Bassline,0.5483870967741935,moderate
+Hard Techno,Trance (Raw - Deep - Hypnotic),0.5483870967741935,moderate
+Bass - Club,Techno (Raw - Deep - Hypnotic),0.5476190476190477,moderate
+Hard Dance - Hardcore - Neo Rave,Psy-Trance,0.5476190476190477,moderate
+Mainstage,Progressive House,0.5454545454545454,moderate
+Electronica,Tech House,0.544,moderate
+Hard Dance - Hardcore - Neo Rave,Tech House,0.5433070866141733,moderate
+Tech House,Trance (Main Floor),0.5433070866141733,moderate
+Bass House,Drum & Bass,0.5403225806451613,moderate
+House,Techno (Peak Time - Driving),0.5403225806451613,moderate
+Bass House,Indie Dance,0.5396825396825397,moderate
+Bass House,UK Garage - Bassline,0.5396825396825397,moderate
+Funky House,Trance (Raw - Deep - Hypnotic),0.5396825396825397,moderate
+Hard Techno,Tech House,0.5396825396825397,moderate
+Techno (Raw - Deep - Hypnotic),Trance (Raw - Deep - Hypnotic),0.5396825396825397,moderate
+Minimal - Deep Tech,Psy-Trance,0.5354330708661418,moderate
+Electronica,Progressive House,0.5327868852459017,moderate
+Breaks - Breakbeat - UK Bass,Organic House,0.532258064516129,moderate
+Amapiano,Electronica,0.5317460317460317,moderate
+Funky House,Tech House,0.53125,moderate
+Dance - Pop,Progressive House,0.5284552845528455,moderate
+Downtempo,Trance (Main Floor),0.5284552845528455,moderate
+Drum & Bass,Trance (Main Floor),0.528,moderate
+Indie Dance,Techno (Peak Time - Driving),0.528,moderate
+Bass House,Nu Disco - Disco,0.5275590551181102,moderate
+Funky House,Nu Disco - Disco,0.5275590551181102,moderate
+Hard Dance - Hardcore - Neo Rave,Trance (Raw - Deep - Hypnotic),0.5275590551181102,moderate
+Trance (Main Floor),UK Garage - Bassline,0.5275590551181102,moderate
+Bass - Club,Progressive House,0.5241935483870968,moderate
+Bass - Club,Organic House,0.5238095238095238,moderate
+Electronica,Organic House,0.52,moderate
+Electronica,Techno (Peak Time - Driving),0.52,moderate
+Hard Dance - Hardcore - Neo Rave,Progressive House,0.52,moderate
+Bass - Club,House,0.5196850393700787,moderate
+Breaks - Breakbeat - UK Bass,Minimal - Deep Tech,0.5196850393700787,moderate
+Bass House,Downtempo,0.5161290322580645,moderate
+Electro (Classic - Detroit - Modern),Progressive House,0.5161290322580645,moderate
+Hard Techno,Progressive House,0.5161290322580645,moderate
+Indie Dance,Mainstage,0.5158730158730159,moderate
+Amapiano,Nu Disco - Disco,0.515625,moderate
+Electro (Classic - Detroit - Modern),Tech House,0.515625,moderate
+Indie Dance,Trance (Main Floor),0.515625,moderate
+Nu Disco - Disco,Trance (Main Floor),0.515625,moderate
+Downtempo,Hard Techno,0.5121951219512195,moderate
+Electronica,Psy-Trance,0.5118110236220472,moderate
+Bass - Club,Tech House,0.5116279069767442,moderate
+Funky House,Progressive House,0.5079365079365079,moderate
+Downtempo,Hard Dance - Hardcore - Neo Rave,0.504,moderate
+Afro House,Organic House,0.5038759689922481,moderate
