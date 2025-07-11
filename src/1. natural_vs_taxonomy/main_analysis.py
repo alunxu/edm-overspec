@@ -62,6 +62,18 @@ def run_complete_analysis():
     selector = EDMFeatureSelector(n_features=100, random_state=42)
     X_selected = selector.fit_select(X_engineered, y, n_clusters=35)
     
+    print("\nSaving feature matrix for future analysis...")
+    feature_matrix_path = os.path.join('results', 'pkl', 'feature_matrix.pkl')
+    with open(feature_matrix_path, 'wb') as f:
+        pickle.dump({
+            'X_selected': X_selected.values,  # The selected features as numpy array
+            'feature_names': X_selected.columns.tolist() if hasattr(X_selected, 'columns') else None,
+            'genre_labels': y.values,
+            'song_names': df['song'].values,
+            'artist_names': df['artist'].values if 'artist' in df.columns else None
+        }, f)
+    print(f"Saved feature matrix: {feature_matrix_path}")
+    
     # 4. Clustering
     clusterer = EDMClusterer(random_state=42)
     
@@ -142,6 +154,7 @@ def run_complete_analysis():
         },
         'feature_engineering': engineer.get_feature_info(),
         'feature_selection': selector.get_selection_info(),
+        'feature_matrix': X_selected.values,
         'clustering': {
             'forced_labels': forced_labels,
             'forced_metrics': forced_metrics,
@@ -154,6 +167,7 @@ def run_complete_analysis():
             'exp1_natural_discovery': exp1_results,
             'exp2_genre_convergence': exp2_results
         }
+        
     }
     
     # Save pickle files

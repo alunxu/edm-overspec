@@ -14,7 +14,8 @@ from sklearn.decomposition import PCA
 from scipy.spatial.distance import cdist
 import matplotlib.patches as mpatches
 from matplotlib.patches import ConnectionPatch
-from adjustText import adjust_text
+import pickle
+import os
 
 
 def visualize_phantom_genres_2d():
@@ -24,17 +25,79 @@ def visualize_phantom_genres_2d():
     print("PHANTOM GENRES IN 2D FEATURE SPACE")
     print("="*70)
     
-    # Load data
-    df = pd.read_csv('dataset/top100_with_tempogram_nmf_meta.csv')
-    
-    # Get numeric features
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    X = df[numeric_cols].values
-    y = df['genre'].values
-    
-    # Standardize features
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    # Try to load the processed features from saved results
+    try:
+        # Load the saved results from main analysis
+        import pickle
+        with open('results/pkl/edm_complete_analysis_results.pkl', 'rb') as f:
+            results = pickle.load(f)
+        
+        # Load clustering summary to get labels
+        clustering_df = pd.read_csv('results/csv/edm_clustering_summary.csv')
+        y = clustering_df['true_genre'].values
+        natural_labels = clustering_df['natural_cluster'].values
+        
+        print("Using engineered and selected features from main analysis...")
+        
+        # Reconstruct the feature matrix
+        # Option 1: If features were saved in results
+        if 'feature_matrix' in results:
+            X_scaled = results['feature_matrix']
+        else:
+            # Option 2: Reconstruct using the same pipeline
+            print("Reconstructing feature pipeline...")
+            df = pd.read_csv('dataset/top100_with_tempogram_nmf_meta.csv')
+            
+            # Import the feature engineering and selection modules
+            try:
+                from feature_engineering import EDMFeatureEngineer
+                from feature_selection import EDMFeatureSelector
+                
+                # Get numeric features
+                numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+                X_raw = df[numeric_cols]
+                
+                # Apply feature engineering
+                engineer = EDMFeatureEngineer(random_state=42)
+                X_engineered = engineer.fit_transform(X_raw)
+                
+                # Apply feature selection
+                selector = EDMFeatureSelector(n_features=100, random_state=42)
+                X_selected = selector.fit_select(X_engineered, df['genre'], n_clusters=35)
+                
+                # The selected features are already scaled
+                X_scaled = X_selected.values
+                
+                print(f"Using {X_scaled.shape[1]} engineered and selected features")
+                
+            except ImportError:
+                print("Feature modules not found. Using PCA fallback...")
+                # Fallback: Use PCA on standardized features
+                numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+                X_raw = df[numeric_cols].values
+                
+                scaler = StandardScaler()
+                X_scaled_full = scaler.fit_transform(X_raw)
+                
+                # Use PCA to reduce to same dimensionality as main analysis
+                n_features = results.get('data_info', {}).get('n_features_selected', 100)
+                pca = PCA(n_components=n_features, random_state=42)
+                X_scaled = pca.fit_transform(X_scaled_full)
+                
+                print(f"Using PCA with {n_features} components")
+        
+    except Exception as e:
+        print(f"Could not load saved results: {e}")
+        print("Falling back to original features...")
+        
+        # Fallback to original approach
+        df = pd.read_csv('dataset/top100_with_tempogram_nmf_meta.csv')
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        X = df[numeric_cols].values
+        y = df['genre'].values
+        
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
     
     # Calculate genre centroids
     print("\nCalculating genre centroids...")

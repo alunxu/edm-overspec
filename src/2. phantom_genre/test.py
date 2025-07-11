@@ -1,355 +1,261 @@
 """
-true_phantom_radar_analysis.py
-==============================
-Identify and visualize genres that are ACTUALLY acoustically similar
+phantom_2d_simple.py
+====================
+Simplified 2D visualization using the exact feature matrix from main analysis
 """
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from math import pi
-from scipy.spatial.distance import cosine
-from sklearn.preprocessing import StandardScaler
 import seaborn as sns
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
+from scipy.spatial.distance import cdist
+import pickle
+import os
 
 
-def find_acoustically_similar_genres():
-    """Find genre pairs that are truly acoustically similar based on features."""
+def load_feature_matrix():
+    """Load the exact feature matrix used in main analysis."""
     
-    print("="*70)
-    print("TRUE PHANTOM GENRE ANALYSIS - BASED ON ACOUSTIC SIMILARITY")
-    print("="*70)
+    # First try the dedicated feature matrix file
+    feature_matrix_path = 'results/pkl/feature_matrix.pkl'
+    if os.path.exists(feature_matrix_path):
+        print(f"Loading features from {feature_matrix_path}")
+        with open(feature_matrix_path, 'rb') as f:
+            data = pickle.load(f)
+        return data['X_selected'], data['genre_labels']
     
-    # Load original dataset
-    df = pd.read_csv('dataset/top100_with_tempogram_nmf_meta.csv')
-    
-    # Get numeric features only
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    print(f"\nUsing {len(numeric_cols)} acoustic features")
-    
-    # Calculate mean features for each genre
-    print("\nCalculating genre acoustic profiles...")
-    genre_features = df.groupby('genre')[numeric_cols].mean()
-    
-    # Standardize features for fair comparison
-    scaler = StandardScaler()
-    genre_features_scaled = pd.DataFrame(
-        scaler.fit_transform(genre_features),
-        index=genre_features.index,
-        columns=genre_features.columns
-    )
-    
-    # Calculate pairwise acoustic similarity
-    print("\nCalculating acoustic similarities between genres...")
-    genres = genre_features_scaled.index
-    n_genres = len(genres)
-    
-    similarity_matrix = np.zeros((n_genres, n_genres))
-    
-    for i, g1 in enumerate(genres):
-        for j, g2 in enumerate(genres):
-            if i == j:
-                similarity_matrix[i, j] = 1.0
-            else:
-                # Cosine similarity
-                feat1 = genre_features_scaled.loc[g1].values
-                feat2 = genre_features_scaled.loc[g2].values
-                similarity_matrix[i, j] = 1 - cosine(feat1, feat2)
-    
-    # Convert to DataFrame
-    similarity_df = pd.DataFrame(similarity_matrix, index=genres, columns=genres)
-    
-    # Find truly similar pairs (high acoustic similarity)
-    similar_pairs = []
-    
-    for i, g1 in enumerate(genres):
-        for j, g2 in enumerate(genres):
-            if i < j:  # Avoid duplicates
-                sim = similarity_df.loc[g1, g2]
-                if sim > 0.85:  # High similarity threshold
-                    similar_pairs.append({
-                        'genre1': g1,
-                        'genre2': g2,
-                        'acoustic_similarity': sim
-                    })
-    
-    similar_pairs_df = pd.DataFrame(similar_pairs)
-    if len(similar_pairs_df) > 0:
-        similar_pairs_df = similar_pairs_df.sort_values('acoustic_similarity', ascending=False)
-        print(f"\nFound {len(similar_pairs_df)} acoustically similar genre pairs (>0.85 similarity)")
-    else:
-        print("\nNo genre pairs found with >0.85 acoustic similarity. Lowering threshold...")
-        # Try with lower threshold
-        similar_pairs = []
-        for i, g1 in enumerate(genres):
-            for j, g2 in enumerate(genres):
-                if i < j:  # Avoid duplicates
-                    sim = similarity_df.loc[g1, g2]
-                    if sim > 0.75:  # Lower threshold
-                        similar_pairs.append({
-                            'genre1': g1,
-                            'genre2': g2,
-                            'acoustic_similarity': sim
-                        })
+    # Otherwise load from main results
+    results_path = 'results/pkl/edm_complete_analysis_results.pkl'
+    if os.path.exists(results_path):
+        print(f"Loading features from {results_path}")
+        with open(results_path, 'rb') as f:
+            results = pickle.load(f)
         
-        similar_pairs_df = pd.DataFrame(similar_pairs)
-        if len(similar_pairs_df) > 0:
-            similar_pairs_df = similar_pairs_df.sort_values('acoustic_similarity', ascending=False)
-            print(f"\nFound {len(similar_pairs_df)} acoustically similar genre pairs (>0.75 similarity)")
+        # Get clustering data
+        clustering_df = pd.read_csv('results/csv/edm_clustering_summary.csv')
+        
+        # The feature matrix should be in the results
+        if 'feature_matrix' in results:
+            X = results['feature_matrix']
         else:
-            print("\nNo similar pairs found even with lower threshold!")
+            # Reconstruct t-SNE input from the visualization
+            # The main analysis uses X_selected.values for t-SNE
+            # We need to match that exactly
+            print("Feature matrix not found in results. Reconstructing...")
+            
+            # Load original data and apply same transformations
+            df = pd.read_csv('dataset/top100_with_tempogram_nmf_meta.csv')
+            
+            # This is a simplified reconstruction - ideally run main_analysis.py 
+            # with the feature matrix saving code added
+            raise ValueError("Please run main_analysis.py with feature matrix saving enabled")
+        
+        y = clustering_df['true_genre'].values
+        return X, y
     
-    # Create heatmap of acoustic similarity
-    create_acoustic_similarity_heatmap(similarity_df)
-    
-    # Create radar plots for truly similar genres
-    create_true_phantom_radar_plots(df, genre_features, similar_pairs_df)
-    
-    return similarity_df, similar_pairs_df
+    raise FileNotFoundError("Could not find saved feature matrix. Please run main_analysis.py first.")
 
 
-def create_acoustic_similarity_heatmap(similarity_df):
-    """Create a heatmap showing acoustic similarity between all genres."""
+def create_phantom_2d_visualization():
+    """Create 2D visualization of phantom genres using saved features."""
     
-    plt.figure(figsize=(14, 12))
+    print("="*70)
+    print("PHANTOM GENRES IN 2D SPACE - USING MAIN ANALYSIS FEATURES")
+    print("="*70)
     
-    # Hierarchical clustering for better ordering
-    from scipy.cluster.hierarchy import linkage, dendrogram
-    from scipy.spatial.distance import squareform
+    # Load the exact feature matrix from main analysis
+    X, y = load_feature_matrix()
+    print(f"\nLoaded feature matrix: {X.shape}")
+    print(f"Unique genres: {len(np.unique(y))}")
     
-    # Convert similarity to distance
-    distance_matrix = 1 - similarity_df.values
-    condensed_dist = squareform(distance_matrix)
-    linkage_matrix = linkage(condensed_dist, method='average')
-    dendro = dendrogram(linkage_matrix, no_plot=True)
-    order = dendro['leaves']
+    # Calculate genre centroids in feature space
+    unique_genres = np.unique(y)
+    genre_centroids = {}
+    genre_features = []
     
-    # Reorder matrix
-    ordered_sim = similarity_df.iloc[order, order]
+    for genre in unique_genres:
+        mask = y == genre
+        centroid = X[mask].mean(axis=0)
+        genre_centroids[genre] = centroid
+        genre_features.append(centroid)
     
-    # Create heatmap
-    mask = np.triu(np.ones_like(ordered_sim), k=1)
+    genre_features = np.array(genre_features)
     
-    sns.heatmap(ordered_sim, 
-                mask=mask,
-                cmap='RdBu_r',
-                center=0.5,
-                vmin=0, vmax=1,
-                square=True,
-                linewidths=0.5,
-                cbar_kws={"shrink": .8, "label": "Acoustic Similarity"},
-                xticklabels=True,
-                yticklabels=True,
-                annot=False)
+    # Calculate pairwise distances
+    distances = cdist(genre_features, genre_features, metric='euclidean')
     
-    plt.title('Acoustic Similarity Matrix - Based on Audio Features', fontsize=16, weight='bold')
-    plt.xticks(rotation=45, ha='right', fontsize=9)
-    plt.yticks(rotation=0, fontsize=9)
+    # Find close pairs (phantom candidates)
+    phantom_threshold = np.percentile(distances[distances > 0], 20)
+    phantom_pairs = []
     
-    # Highlight high similarity regions
-    plt.text(0.02, 0.98, 'Red = Acoustically similar\nBlue = Acoustically different', 
-            transform=plt.gca().transAxes, fontsize=10,
-            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8),
-            va='top')
+    for i in range(len(unique_genres)):
+        for j in range(i+1, len(unique_genres)):
+            if distances[i, j] < phantom_threshold:
+                phantom_pairs.append({
+                    'genre1': unique_genres[i],
+                    'genre2': unique_genres[j],
+                    'distance': distances[i, j]
+                })
+    
+    phantom_pairs_df = pd.DataFrame(phantom_pairs).sort_values('distance')
+    print(f"\nFound {len(phantom_pairs_df)} close genre pairs")
+    
+    # Create visualization
+    fig = plt.figure(figsize=(20, 10))
+    
+    # 1. t-SNE projection (matching main analysis)
+    ax1 = plt.subplot(1, 2, 1)
+    
+    print("\nComputing t-SNE (this matches the main analysis)...")
+    tsne = TSNE(n_components=2, random_state=42, perplexity=min(30, len(X)-1))
+    X_tsne = tsne.fit_transform(X)
+    
+    # Plot with genre colors
+    unique_genres = np.unique(y)
+    colors = plt.cm.tab20(np.linspace(0, 1, len(unique_genres)))
+    genre_color_map = {genre: colors[i] for i, genre in enumerate(unique_genres)}
+    
+    # Plot all points
+    for genre in unique_genres:
+        mask = y == genre
+        ax1.scatter(X_tsne[mask, 0], X_tsne[mask, 1], 
+                   c=[genre_color_map[genre]], 
+                   alpha=0.6, s=50, 
+                   label=genre if len(genre) < 20 else genre[:17]+'...',
+                   edgecolors='white', linewidth=0.5)
+    
+    # Calculate and plot centroids in t-SNE space
+    genre_centroids_tsne = {}
+    for genre in unique_genres:
+        mask = y == genre
+        if mask.any():
+            centroid_tsne = X_tsne[mask].mean(axis=0)
+            genre_centroids_tsne[genre] = centroid_tsne
+            
+            # Plot centroid as star
+            ax1.scatter(centroid_tsne[0], centroid_tsne[1], 
+                       c=[genre_color_map[genre]], 
+                       s=300, marker='*', 
+                       edgecolors='black', linewidth=2)
+    
+    # Draw connections for phantom pairs
+    for _, pair in phantom_pairs_df.head(10).iterrows():
+        g1, g2 = pair['genre1'], pair['genre2']
+        if g1 in genre_centroids_tsne and g2 in genre_centroids_tsne:
+            x1, y1 = genre_centroids_tsne[g1]
+            x2, y2 = genre_centroids_tsne[g2]
+            
+            ax1.plot([x1, x2], [y1, y2], 'k-', alpha=0.5, linewidth=2, zorder=1)
+            
+            # Add distance label
+            mid_x, mid_y = (x1 + x2) / 2, (y1 + y2) / 2
+            ax1.text(mid_x, mid_y, f"{pair['distance']:.1f}", 
+                    fontsize=9, ha='center', 
+                    bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.7))
+    
+    ax1.set_xlabel('t-SNE Dimension 1')
+    ax1.set_ylabel('t-SNE Dimension 2')
+    ax1.set_title('Phantom Genres in t-SNE Space\n(Using 100 selected features from main analysis)', 
+                 fontsize=14, weight='bold')
+    ax1.grid(True, alpha=0.3)
+    
+    # Add legend
+    ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left', 
+              fontsize=8, ncol=1)
+    
+    # 2. PCA projection for comparison
+    ax2 = plt.subplot(1, 2, 2)
+    
+    print("Computing PCA projection...")
+    pca = PCA(n_components=2, random_state=42)
+    X_pca = pca.fit_transform(X)
+    
+    # Plot all points
+    for genre in unique_genres:
+        mask = y == genre
+        ax2.scatter(X_pca[mask, 0], X_pca[mask, 1], 
+                   c=[genre_color_map[genre]], 
+                   alpha=0.6, s=50,
+                   edgecolors='white', linewidth=0.5)
+    
+    # Plot centroids and connections in PCA space
+    genre_centroids_pca = {}
+    for genre in unique_genres:
+        mask = y == genre
+        if mask.any():
+            centroid_pca = X_pca[mask].mean(axis=0)
+            genre_centroids_pca[genre] = centroid_pca
+            
+            ax2.scatter(centroid_pca[0], centroid_pca[1], 
+                       c=[genre_color_map[genre]], 
+                       s=300, marker='*', 
+                       edgecolors='black', linewidth=2)
+    
+    # Draw phantom connections
+    for _, pair in phantom_pairs_df.head(10).iterrows():
+        g1, g2 = pair['genre1'], pair['genre2']
+        if g1 in genre_centroids_pca and g2 in genre_centroids_pca:
+            x1, y1 = genre_centroids_pca[g1]
+            x2, y2 = genre_centroids_pca[g2]
+            
+            ax2.plot([x1, x2], [y1, y2], 'k-', alpha=0.5, linewidth=2, zorder=1)
+    
+    ax2.set_xlabel(f'PC1 ({pca.explained_variance_ratio_[0]:.1%} variance)')
+    ax2.set_ylabel(f'PC2 ({pca.explained_variance_ratio_[1]:.1%} variance)')
+    ax2.set_title(f'Phantom Genres in PCA Space\n(Total variance explained: {sum(pca.explained_variance_ratio_):.1%})',
+                 fontsize=14, weight='bold')
+    ax2.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('plots/acoustic_similarity_matrix.png', dpi=300, bbox_inches='tight')
-    print("\nSaved: plots/acoustic_similarity_matrix.png")
-    plt.show()
-
-
-def create_true_phantom_radar_plots(df, genre_features, similar_pairs_df):
-    """Create radar plots for genres that are truly acoustically similar."""
-    
-    # Define feature mappings for radar dimensions
-    feature_mappings = {
-        'energy': {
-            'keywords': ['energy', 'rms', 'power', 'loud', 'amplitude'],
-            'features': []
-        },
-        'danceability': {
-            'keywords': ['dance', 'groove', 'swing'],
-            'features': []
-        },
-        'tempo': {
-            'keywords': ['bpm', 'tempo'],
-            'features': []
-        },
-        'bass_presence': {
-            'keywords': ['spectralrolloff', 'spectralspread', 'low'],
-            'features': []
-        },
-        'harmonic_content': {
-            'keywords': ['chroma', 'tonnetz', 'harmonic'],
-            'features': []
-        },
-        'rhythmic_complexity': {
-            'keywords': ['onset', 'beat', 'percussive'],
-            'features': []
-        }
-    }
-    
-    # Map features
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    for col in numeric_cols:
-        col_lower = col.lower()
-        for dim, config in feature_mappings.items():
-            if any(keyword in col_lower for keyword in config['keywords']):
-                config['features'].append(col)
-                break
-    
-    # Calculate normalized profiles
-    print("\nCalculating normalized genre profiles...")
-    genre_profiles = {}
-    
-    for genre in genre_features.index:
-        profile = {}
-        
-        for dim, config in feature_mappings.items():
-            if config['features']:
-                # Get top 3 features for this dimension
-                features = config['features'][:3]
-                dim_values = []
-                
-                for feat in features:
-                    if feat in genre_features.columns:
-                        # Get percentile rank across all genres
-                        values = genre_features[feat]
-                        genre_value = genre_features.loc[genre, feat]
-                        percentile = (values <= genre_value).sum() / len(values) * 100
-                        dim_values.append(percentile)
-                
-                if dim_values:
-                    profile[dim] = np.mean(dim_values)
-                else:
-                    profile[dim] = 50
-            else:
-                profile[dim] = 50
-        
-        genre_profiles[genre] = profile
-    
-    # Create radar plots
-    fig = plt.figure(figsize=(16, 12))
-    
-    # Show top 8 most similar pairs
-    n_pairs = min(8, len(similar_pairs_df))
-    if n_pairs == 0:
-        print("No highly similar genre pairs found!")
-        return
-    
-    gs = gridspec.GridSpec(2, 4, figure=fig, hspace=0.35, wspace=0.3)
-    
-    categories = ['Energy', 'Dance', 'Tempo', 'Bass', 'Harmonic', 'Rhythm']
-    num_vars = len(categories)
-    angles = [n / float(num_vars) * 2 * pi for n in range(num_vars)]
-    angles += angles[:1]
-    
-    for idx, (_, row) in enumerate(similar_pairs_df.head(n_pairs).iterrows()):
-        ax = fig.add_subplot(gs[idx // 4, idx % 4], projection='polar')
-        
-        genre1 = row['genre1']
-        genre2 = row['genre2']
-        similarity = row['acoustic_similarity']
-        
-        # Get profiles
-        if genre1 in genre_profiles and genre2 in genre_profiles:
-            # Genre 1
-            values1 = []
-            for dim in ['energy', 'danceability', 'tempo', 'bass_presence', 
-                       'harmonic_content', 'rhythmic_complexity']:
-                values1.append(genre_profiles[genre1].get(dim, 50))
-            values1 += values1[:1]
-            
-            # Genre 2
-            values2 = []
-            for dim in ['energy', 'danceability', 'tempo', 'bass_presence', 
-                       'harmonic_content', 'rhythmic_complexity']:
-                values2.append(genre_profiles[genre2].get(dim, 50))
-            values2 += values2[:1]
-            
-            # Calculate profile difference
-            profile_diff = np.mean([abs(v1 - v2) for v1, v2 in zip(values1[:-1], values2[:-1])])
-            
-            # Plot with transparency to show overlap
-            ax.plot(angles, values1, 'o-', linewidth=2.5, 
-                   label=genre1[:25], color='#FF6B6B', markersize=8, alpha=0.8)
-            ax.fill(angles, values1, alpha=0.3, color='#FF6B6B')
-            
-            ax.plot(angles, values2, 's--', linewidth=2.5, 
-                   label=genre2[:25], color='#4ECDC4', markersize=7, alpha=0.8)
-            ax.fill(angles, values2, alpha=0.25, color='#4ECDC4')
-            
-            # Setup
-            ax.set_theta_offset(pi / 2)
-            ax.set_theta_direction(-1)
-            ax.set_xticks(angles[:-1])
-            ax.set_xticklabels(categories, size=9)
-            ax.set_ylim(0, 100)
-            ax.set_yticks([25, 50, 75])
-            ax.set_yticklabels(['25', '50', '75'], size=8)
-            ax.grid(True, linestyle='--', alpha=0.5)
-            
-            # Title shows acoustic similarity
-            ax.set_title(f'Similarity: {similarity:.3f} | Diff: {profile_diff:.1f}', 
-                        fontsize=10, fontweight='bold', pad=15)
-            
-            # Highlight if truly phantom (very similar)
-            if profile_diff < 10:
-                ax.set_facecolor('#FFE5E5')
-            
-            ax.legend(loc='upper left', bbox_to_anchor=(-0.2, 1.15), 
-                     fontsize=8, frameon=True)
-    
-    fig.suptitle('True Phantom Genres: Based on Acoustic Feature Similarity', 
-                 fontsize=18, fontweight='bold')
-    
-    fig.text(0.5, 0.02, 
-             'Showing genre pairs with >85% acoustic similarity. Pink background indicates nearly identical profiles (diff < 10).',
-             ha='center', fontsize=12, style='italic')
-    
-    plt.tight_layout()
-    plt.savefig('plots/true_phantom_genres_radar.png', dpi=300, bbox_inches='tight')
-    print("Saved: plots/true_phantom_genres_radar.png")
+    plt.savefig('plots/phantom_genres_2d_simple.png', dpi=300, bbox_inches='tight')
+    print("\nSaved: plots/phantom_genres_2d_simple.png")
     plt.show()
     
-    # Print summary
-    print("\n" + "="*60)
-    print("TRUE PHANTOM GENRE PAIRS (Acoustically Indistinguishable):")
-    print("="*60)
+    # Print top phantom pairs
+    print("\n" + "="*70)
+    print("TOP PHANTOM PAIRS (Closest in 100-D feature space):")
+    print("="*70)
+    for _, pair in phantom_pairs_df.head(15).iterrows():
+        print(f"{pair['genre1']:30} ↔ {pair['genre2']:30} : distance = {pair['distance']:.3f}")
     
-    for _, row in similar_pairs_df.head(10).iterrows():
-        print(f"{row['genre1']} ↔ {row['genre2']}: {row['acoustic_similarity']:.3f}")
+    # Also load and compare with co-clustering results
+    try:
+        coclustering_df = pd.read_csv('results/phantom_analysis_final/phantom_genre_pairs.csv')
+        print("\n" + "="*70)
+        print("COMPARING WITH CO-CLUSTERING RESULTS:")
+        print("="*70)
+        
+        # Check which co-clustering pairs are also close in feature space
+        for _, row in coclustering_df.head(10).iterrows():
+            g1, g2 = row['genre1'], row['genre2']
+            
+            # Find feature space distance
+            if g1 in unique_genres and g2 in unique_genres:
+                i1 = np.where(unique_genres == g1)[0][0]
+                i2 = np.where(unique_genres == g2)[0][0]
+                feat_dist = distances[i1, i2]
+                
+                print(f"{g1:25} ↔ {g2:25} : "
+                      f"co-cluster = {row['similarity']:.2f}, "
+                      f"feature dist = {feat_dist:.2f}")
+    except:
+        pass
+    
+    return phantom_pairs_df
 
 
 if __name__ == "__main__":
     try:
-        similarity_df, similar_pairs = find_acoustically_similar_genres()
-        
-        # Also check our co-clustering results against acoustic similarity
-        print("\n" + "="*60)
-        print("COMPARING CO-CLUSTERING VS ACOUSTIC SIMILARITY")
-        print("="*60)
-        
-        # Load co-clustering results
-        try:
-            phantom_df = pd.read_csv('results/phantom_analysis_final/phantom_genre_pairs.csv')
-            
-            # Check acoustic similarity for top co-clustering pairs
-            print("\nAcoustic similarity of top co-clustering pairs:")
-            for _, row in phantom_df.head(10).iterrows():
-                g1, g2 = row['genre1'], row['genre2']
-                if g1 in similarity_df.index and g2 in similarity_df.index:
-                    acoustic_sim = similarity_df.loc[g1, g2]
-                    print(f"{g1} ↔ {g2}: Co-cluster={row['similarity']:.2f}, Acoustic={acoustic_sim:.3f}")
-        except:
-            print("Could not load co-clustering results for comparison")
-        
+        phantom_pairs = create_phantom_2d_visualization()
         print("\n" + "="*70)
-        print("ANALYSIS COMPLETE!")
+        print("VISUALIZATION COMPLETE!")
         print("="*70)
         
     except Exception as e:
         print(f"\nError: {e}")
+        print("\nMake sure you have run main_analysis.py first.")
+        print("If the feature matrix is not saved, add the saving code to main_analysis.py")
         import traceback
         traceback.print_exc()
