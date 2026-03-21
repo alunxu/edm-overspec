@@ -181,7 +181,7 @@ def main():
     consensus_k = min(k for k, v in votes.items() if v == max_votes)
     print(f"  {'CONSENSUS':15s}: {consensus_k}")
 
-    out_path = os.path.join(OUT_DIR, 'natural_k_validation.png')
+    out_path = os.path.join(OUT_DIR, 'figa2_natural_k_validation.png')
     plot_validation_figure(k_values, metrics, consensus_k, method_ks, out_path)
 
 

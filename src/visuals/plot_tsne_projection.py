@@ -361,7 +361,7 @@ def main():
     plot_tsne_alternative(
         X_selected, natural_labels, y,
         n_clusters=natural_k,
-        save_path='paper/SMC/figs/paper/tsne.png'
+        save_path='paper/SMC/figs/paper/fig1_tsne.png'
     )
     
     print("\n" + "="*70)

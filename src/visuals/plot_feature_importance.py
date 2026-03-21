@@ -5,7 +5,7 @@ Panel (a): Stacked horizontal bar chart of the top-25 features (normalised
 Panel (b): Horizontal box-plots with strip overlay showing ensemble-score
            distribution per feature category.
 
-Saves to paper/SMC/figs/paper/feature_importance.png
+Saves to paper/SMC/figs/paper/fig2_feature_importance.png
 """
 import pandas as pd
 import matplotlib
@@ -348,6 +348,6 @@ fig.subplots_adjust(left=0.25, right=0.95, top=0.96, bottom=0.06)
 fig.align_ylabels([ax_bar, ax_box])
 
 os.makedirs('paper/SMC/figs/paper', exist_ok=True)
-outpath = 'paper/SMC/figs/paper/feature_importance.png'
+outpath = 'paper/SMC/figs/paper/fig2_feature_importance.png'
 plt.savefig(outpath, dpi=300, bbox_inches='tight')
 print(f"Saved: {outpath}")

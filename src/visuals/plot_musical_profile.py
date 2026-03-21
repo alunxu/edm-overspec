@@ -195,7 +195,7 @@ def compute_adaptive_musical_profiles(df, cluster_labels, feature_mapping):
 # ────────────────────────────────────────────────────────────────
 
 def create_musical_profile_figure(df, cluster_labels, y_true,
-                                  save_path='paper/SMC/figs/paper/musical_profile.png'):
+                                  save_path='paper/SMC/figs/paper/fig4_musical_profile.png'):
     """Create the 2×2 radar-plot figure (Figure 4 in the paper)."""
 
     # Feature mapping
