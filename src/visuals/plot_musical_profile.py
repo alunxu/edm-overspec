@@ -222,8 +222,8 @@ def create_musical_profile_figure(df, cluster_labels, y_true,
     sorted_purity = sorted(cluster_info.items(), key=lambda x: x[1]['purity'], reverse=True)
 
     # ------ plotting ------
-    fig = plt.figure(figsize=(12, 10))
-    gs = gridspec.GridSpec(2, 2, figure=fig, hspace=0.35, wspace=0.3)
+    fig = plt.figure(figsize=(12, 12))
+    gs = gridspec.GridSpec(2, 2, figure=fig, hspace=0.25, wspace=0.15)
 
     categories = ['Energy', 'Dance.', 'Tempo', 'Harmonic', 'Rhythmic', 'Electronic']
     num_vars = len(categories)
@@ -238,15 +238,27 @@ def create_musical_profile_figure(df, cluster_labels, y_true,
     ]
 
     color_schemes = [
-        plt.cm.Reds(np.linspace(0.4, 0.9, 5)),
-        plt.cm.Oranges(np.linspace(0.4, 0.9, 5)),
+        plt.cm.Set1(np.linspace(0.0, 0.5, 5)),     # Top 5 purest: vivid distinct hues
+        plt.cm.tab10(np.linspace(0.5, 1.0, 5)),     # Purest 6-10: warm distinct hues
         plt.cm.Blues(np.linspace(0.4, 0.9, 5)),
         plt.cm.Greens(np.linspace(0.4, 0.9, 5)),
     ]
 
+    # Background tints for each quadrant (very subtle)
+    bg_colors = ['#FFF5F5', '#FFF8F0', '#F0F4FF', '#F0FFF0']
+
     for subplot_idx, (title, clusters) in enumerate(groups):
         ax = fig.add_subplot(gs[subplot_idx // 2, subplot_idx % 2], projection='polar')
         colors = color_schemes[subplot_idx]
+
+        # — Modern grid: subtle concentric rings + radial spokes —
+        ax.set_facecolor(bg_colors[subplot_idx])
+        ax.grid(True, linestyle='-', alpha=0.15, color='#888888', linewidth=0.6)
+        # Draw concentric reference rings
+        for ring_val in [20, 40, 60, 80]:
+            ring_angles = np.linspace(0, 2 * pi, 100)
+            ax.plot(ring_angles, [ring_val] * 100,
+                    linestyle=':', color='#AAAAAA', linewidth=0.5, alpha=0.6)
 
         for i, (cid, info) in enumerate(clusters[:5]):
             if cid in profiles:
@@ -261,27 +273,34 @@ def create_musical_profile_figure(df, cluster_labels, y_true,
                 vals += vals[:1]
                 genre_short = info['dominant_genre'][:12]
                 label = f"C{cid}: {genre_short} ({info['purity']:.0%})"
-                ax.plot(angles, vals, 'o-', linewidth=2, label=label,
-                        color=colors[i], markersize=6)
-                ax.fill(angles, vals, alpha=0.15, color=colors[i])
+                # Glow effect: wider semi-transparent line behind
+                ax.plot(angles, vals, linewidth=5, color=colors[i], alpha=0.15)
+                # Main line
+                ax.plot(angles, vals, 'o-', linewidth=2.2, label=label,
+                        color=colors[i], markersize=5, markeredgecolor='white',
+                        markeredgewidth=0.8, zorder=3)
+                # Gradient-like fill
+                ax.fill(angles, vals, alpha=0.12, color=colors[i])
 
         ax.set_theta_offset(pi / 2)
         ax.set_theta_direction(-1)
         ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(categories, size=8)
+        ax.set_xticklabels(categories, size=12, fontweight='bold', color='#444444')
         ax.set_ylim(0, 100)
         ax.set_yticks([20, 40, 60, 80])
-        ax.set_yticklabels(['20', '40', '60', '80'], size=7)
-        ax.grid(True, linestyle='--', alpha=0.5)
-        ax.set_title(title, fontsize=11, fontweight='bold', pad=20, color='black')
-        ax.legend(loc='upper left', bbox_to_anchor=(-0.15, 1.0),
-                  fontsize=7, frameon=True, fancybox=True)
+        ax.set_yticklabels(['20', '40', '60', '80'], size=7, color='#999999')
+        ax.spines['polar'].set_color('#CCCCCC')
+        ax.spines['polar'].set_linewidth(0.8)
+        ax.set_title(title, fontsize=14, fontweight='bold', pad=12, color='black')
+        ax.legend(loc='upper left', bbox_to_anchor=(-0.15, 1.06),
+                  fontsize=8.5, frameon=True, fancybox=True,
+                  edgecolor='#CCCCCC', framealpha=0.9)
 
     fig.suptitle('Musical Profiles for clusters',
-                 fontsize=14, fontweight='bold', color='black')
+                 fontsize=27, fontweight='bold', color='black')
     plt.tight_layout()
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
     print(f"Saved: {save_path}")
     plt.close()
 

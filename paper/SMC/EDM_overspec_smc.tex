@@ -83,9 +83,7 @@
 
 	To validate that our findings reflect genuine acoustic structure rather than artifacts of our feature design, we additionally extract embeddings from two state-of-the-art pre-trained models:
 
-	\textbf{MERT-95M} (768 dimensions): a music-specific transformer trained on 160M music clips using masked language modeling~\cite{li2024mert}. MERT learns hierarchical music representations without genre labels.
-
-	\textbf{CLAP-tiny} (512 dimensions): a contrastive audio-language model trained on 630K audio-text pairs~\cite{wu2023clap}. CLAP's multimodal training provides a domain-agnostic perspective.
+	\textbf{MERT-95M} (768 dimensions): a music-specific transformer trained on 160M music clips using masked language modeling~\cite{li2024mert}. MERT learns hierarchical music representations without genre labels. \textbf{CLAP-tiny} (512 dimensions): a contrastive audio-language model trained on 630K audio-text pairs~\cite{wu2023clap}. CLAP's multimodal training provides a domain-agnostic perspective.
 
 	These embeddings serve as independent validation: if diverse feature representations converge to similar natural cluster counts despite different architectures, training objectives, and dimensionalities, this provides strong evidence that our discovered taxonomy reflects EDM's inherent acoustic organization rather than methodological choices.
 
@@ -185,9 +183,16 @@
 	Since K-means yields the highest-quality clusters at $k$=35 and the consensus criteria for optimal-$k$ selection require sweeping over $k$ values---a procedure native to partitional methods---we adopt K-means for natural-$k$ discovery. When removing the $k$=35 constraint, equal-weight consensus of four validity criteria (silhouette, inertia elbow, Calinski-Harabasz, Davies-Bouldin; see Appendix~\ref{app:validation} for detailed curves) identifies $k$=20 as the optimal number of clusters. The convergence of natural cluster counts across all approaches (19--23 versus the prescribed 35) provides consistent evidence that EDM's commercial taxonomy is acoustically overspecified by over one-third.
 
 
-	We emphasize that this finding concerns \emph{acoustic} overspecification and does not imply that the commercial taxonomy is inherently flawed. Genre labels serve cultural, historical, and commercial functions that extend well beyond acoustic separability---they encode community identity, regional scene affiliations, DJ set-programming conventions, and listener expectations shaped by years of cultural practice~\cite{brackett2016}. Two genres may be acoustically near-identical yet culturally distinct, and such distinctions are legitimate from a music-industry perspective. Our claim is narrower: when evaluated strictly on the basis of audio features, approximately one-third of the prescribed 35 categories lack sufficient acoustic differentiation to form distinct clusters, suggesting that the current taxonomy subdivides what are, acoustically, coherent styles.
+	We emphasize that this finding concerns \emph{acoustic} overspecification and does not imply that the commercial taxonomy is inherently flawed. Genre labels serve cultural, historical, and commercial functions that extend well beyond acoustic separability---they encode community identity, regional scene affiliations, DJ set-programming conventions, and listener expectations shaped by years of cultural practice~\cite{brackett2016}. Two genres may be acoustically near-identical yet culturally distinct, and such distinctions are legitimate from a music-industry perspective---Appendix~\ref{app:convergent} illustrates several such ``acoustically convergent'' pairs whose radar profiles nearly overlap despite carrying different commercial labels. Our claim is narrower: when evaluated strictly on the basis of audio features, approximately one-third of the prescribed 35 categories lack sufficient acoustic differentiation to form distinct clusters, suggesting that the current taxonomy subdivides what are, acoustically, coherent styles.
 
 	\subsubsection{Acoustic Topography: Purity, Concentration, and Size}
+
+    \begin{figure*}[t]
+		\centering
+		\includegraphics[width=\textwidth]{figs/paper/fig3_confusion_matrix.png}
+		\caption{Confusion matrix mapping 35 commercial genre labels to 35 discovered acoustic clusters. The matrix is augmented by three marginals: \textit{Cluster Purity} (top) measures the acoustic exclusivity of a cluster; \textit{Genre Concentration} (left) measures how acoustically monolithic a commercial genre is; and \textit{Cluster Size} (bottom) indicates the total volume of tracks in that acoustic space. The clear inverse relationship between cluster size and purity highlights how massive, generic acoustic templates absorb multiple overlapping commercial labels, while smaller, pure clusters represent distinct sonic niches.}
+		\label{fig:confusion}
+	\end{figure*}
 
 	Figure~\ref{fig:confusion} visualizes the mapping between commercial labels and acoustic clusters, augmented with three structural marginals: Cluster Purity, Cluster Size, and Genre Concentration. Analyzing these marginals reveals the complex typography of EDM, which transitions from distinct, isolated acoustic niches to generic stylistic melting pots.
 
@@ -197,23 +202,16 @@
 
 	\textbf{Acoustic Fragmentation (Low Genre Concentration).} The left margin reveals genres with exceedingly low concentration, meaning their tracks are dispersed across numerous distinct acoustic clusters. Broad labels or heavily evolving genres often fail to localize into a single acoustic signature. This fragmentation implies that the commercial label functions as a cultural umbrella term for contradictory production styles that our clustering correctly partitions. Ultimately, the interplay of these three metrics demonstrates that EDM taxonomy is not uniformly overspecified; rather, overspecification is heavily concentrated in the mainstream center, while the stylistic periphery remains acoustically crisp.
 
-	\begin{figure*}[t]
-		\centering
-		\includegraphics[width=\textwidth]{figs/paper/fig3_confusion_matrix.png}
-		\caption{Confusion matrix mapping 35 commercial genre labels to 35 discovered acoustic clusters. The matrix is augmented by three marginals: \textit{Cluster Purity} (top) measures the acoustic exclusivity of a cluster; \textit{Genre Concentration} (left) measures how acoustically monolithic a commercial genre is; and \textit{Cluster Size} (bottom) indicates the total volume of tracks in that acoustic space. The clear inverse relationship between cluster size and purity highlights how massive, generic acoustic templates absorb multiple overlapping commercial labels, while smaller, pure clusters represent distinct sonic niches.}
-		\label{fig:confusion}
-	\end{figure*}
-
 	\subsubsection{Genre Purity and Acoustic Extremity}
 
-	Figure~\ref{fig:profiles} reveals that genre purity correlates with acoustic extremity. Pure clusters occupy feature space vertices---for example, clusters dominated by DJ Tools tracks (clusters 5, 26, and 18 in the $k$=35 solution) maximize Electronic features while minimizing others. We note that DJ Tools is not a traditional genre but a utility category containing loops, samples, and mixing elements for DJs; these tracks span diverse acoustic profiles, which is why they appear across multiple clusters. Despite this caveat, their extreme acoustic positioning confirms that production-specific content creates distinct signatures. Similarly, Ambient-dominated clusters prioritize Harmonic over Rhythmic features. These extremes---whether functional (DJ Tools) or artistic (Ambient)---demonstrate how specialized production constraints create acoustic signatures that resist genre hybridization.
+	Figure~\ref{fig:profiles} reveals that genre purity correlates with acoustic extremity. The purest clusters occupy feature-space vertices: DJ Tools---a utility category of loops, samples, and mixing elements---maximizes Electronic texture while minimizing other dimensions, and its tracks span multiple clusters precisely because the category encompasses diverse production styles. Similarly, Ambient-dominated clusters push Harmonic features to extremes while compressing Rhythmic and Energy dimensions. These poles---whether functional (DJ Tools) or artistic (Ambient)---demonstrate how specialized production constraints create acoustic signatures that resist genre hybridization.
 
-	Conversely, mixed-genre clusters (11--20\% purity) display varied but less extreme profiles. Rather than converging to a uniform center, they represent distinct hybrid styles---Trap-Future (C30) extends on Electronic/Rhythmic axes while Melodic House (C32) balances multiple dimensions. This diversity suggests genre blending occurs through multiple pathways rather than a single ``neutral'' acoustic space, with each hybrid drawing differently from parent traditions.
+	Conversely, the most mixed clusters exhibit moderate, overlapping profiles rather than converging to a single ``neutral'' center. Each hybrid style draws on parent traditions differently---bass-heavy clusters extend along Rhythmic and Electronic axes, while groove-oriented clusters balance Danceability and Energy---suggesting that genre blending follows multiple distinct pathways through the feature space.
 
 	\begin{figure}[t]
 		\centering
 		\includegraphics[width=0.95\columnwidth]{figs/paper/fig4_musical_profile.png}
-		\caption{Pure clusters occupy feature extremes, while mixed clusters show more moderate rankings. The profiles are derived by aggregating 159 audio features into six interpretable dimensions: Energy (RMS, loudness, amplitude), Danceability (groove, beat strength), Tempo (BPM), Harmonic (chroma, tonnetz, pitch features), Rhythmic (tempogram, onset, percussive, beat features), and Electronic (spectral, MFCC, timbre features). Features were z-score normalized before aggregation. Values shown are percentile rankings (0--100) indicating relative position within the distribution of all clusters. Profiles represent cluster means.}
+		\caption{Radar profiles for the purest and most mixed clusters, aggregating 159 audio features into six interpretable dimensions. Values are percentile rankings (0--100) across all clusters. Pure clusters occupy feature extremes with distinctive signatures, while mixed clusters show moderate, overlapping profiles that reflect genre hybridization through multiple pathways.}
 		\label{fig:profiles}
 	\end{figure}
 
@@ -334,6 +332,17 @@
 		\includegraphics[width=0.95\columnwidth]{figs/paper/figa3_sensitivity_dj_tools.png}
 		\caption{Sensitivity analysis: cluster validation metrics with all 35 genres (blue) versus excluding DJ Tools (orange). Metric curves nearly overlap, confirming that DJ Tools inclusion does not materially affect the optimal-$k$ determination.}
 		\label{fig:sensitivity}
+	\end{figure}
+
+	\section{Acoustically Convergent Genre Pairs}\label{app:convergent}
+
+	To identify genre pairs that are acoustically near-indistinguishable despite carrying distinct commercial labels, we apply a dual filter: (1) high co-clustering rate under K-means ($k$=35, 50 restarts), requiring that tracks from the two genres frequently land in the same cluster; and (2) a profile difference $\Delta < 15$, computed as the mean absolute difference across the six radar dimensions in Figure~\ref{fig:profiles}. Of 595 possible genre pairs, 273 pass the $\Delta$ threshold; applying the co-clustering filter yields the top convergent pairs shown in Figure~\ref{fig:convergent}.
+
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=0.95\columnwidth]{figs/paper/figa4_phantom_genre_profiles.png}
+		\caption{Acoustically convergent genre pairs identified by dual filtering (high co-clustering and profile difference $\Delta < 15$). Each subplot overlays the radar profiles of two commercially distinct genres whose acoustic signatures nearly coincide, illustrating cases where taxonomic boundaries lack acoustic support.}
+		\label{fig:convergent}
 	\end{figure}
 
 \end{document}
