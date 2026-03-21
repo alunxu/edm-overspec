@@ -1,3 +1,32 @@
+# ========================================
+# Project-specific
+# ========================================
+
+# macOS
+.DS_Store
+
+# Reference repo (1.3 GB) and graveyard (113 MB)
+_ref_repo/
+graveyard/
+paper/graveyard/
+
+# Large data files (embeddings, audio, pickles)
+*.npy
+*.pkl
+dataset/BeatportTop100-19_03_2025/
+dataset/all_features_194.csv
+
+# Regenerable outputs
+outputs/
+plots/
+
+# Timestamped reports (keep only latest)
+results/reports/edm_analysis_report_*.txt
+
+# ========================================
+# Python (standard)
+# ========================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

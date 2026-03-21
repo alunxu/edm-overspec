@@ -1,0 +1,323 @@
+% -----------------------------------------------
+% SMC 2026 version of "Acoustic Overspecification in EDM Taxonomy"
+% Converted from ICASSP 2026 format
+% -----------------------------------------------
+\documentclass{article}
+\usepackage{smc2026}
+\usepackage[caption=false, font=footnotesize]{subfig}
+\usepackage{paralist}
+\usepackage[figure,table]{hypcap}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+% Title.
+\def\papertitle{Acoustic Overspecification \\\ in Electronic Dance Music Taxonomy}
+
+% Authors (SMC is single-blind, names visible)
+\author[1]{\mbox{\firstname{Weilun}\lastname{Xu}}}
+\author[1]{\mbox{\firstname{Tianhao}\lastname{Dai}}}
+\author[1]{\mbox{\firstname{Oscar}\lastname{Goudet}}}
+\author[2]{\mbox{\firstname{Xiaoxuan}\lastname{Wang}}}
+
+%Affiliations
+\affil[1]{\department{School of Computer and Communication Sciences (IC)}\institution{École Polytechnique Fédérale de Lausanne}\country{Switzerland}\affiliationtype{University}}
+\affil[2]{\department{Digital and Cognitive Musicology Lab}\institution{École Polytechnique Fédérale de Lausanne}\country{Switzerland}\affiliationtype{University}}
+
+% Complete setup stage
+\completesetup
+
+% Title.
+\title{\papertitle}
+
+\begin{document}
+	%
+	\capstartfalse
+	\maketitle
+	\capstarttrue
+	%
+
+	\begin{abstract}
+		Electronic Dance Music (EDM) classification typically relies on industry-defined taxonomies, and current supervised approaches assume the validity of prescribed subgenre labels. However, the extent to which the distinctions between subgenres reflect genuine acoustic differences has not been systematically evaluated. In this paper, we propose an unsupervised approach to discover the natural acoustic structure of EDM independent of commercial labels. EDM remains underrepresented in MIR feature research relative to other genres; we address this by heuristically constructing a tailored acoustic feature space that captures EDM's production techniques, texture, and layered rhythmic patterns. To validate that our findings reflect genuine acoustic structure rather than methodological artifacts, we compare our results against state-of-the-art pre-trained audio embeddings (MERT and CLAP). Both our feature space and embedding representations converge to 19--23 natural acoustic families compared to the prescribed 35, providing consistent evidence that current EDM taxonomy is acoustically overspecified by over one-third.
+	\end{abstract}
+
+	\section{Introduction}\label{sec:intro}
+	Electronic Dance Music (EDM) presents unique challenges for genre classification. Commercial platforms like Beatport\footnote{\url{https://www.beatport.com} -- leading digital music platform specializing in electronic dance music.} categorize tracks into 35 or more distinct subgenres, yet whether these distinctions reflect genuine acoustic differences or primarily serve commercial and cultural functions remains an open question~\cite{brackett2016}. To understand this tension, we distinguish between two fundamentally different conceptions of genre. \emph{Acoustic genres} are computationally discoverable clusters based on measurable sonic features---tempo, timbre, harmonic content, and rhythmic patterns---reflecting genuine perceptual differences. \emph{Cultural genres}, by contrast, are socially constructed categories that serve marketing differentiation, regional scene identity, and what Thornton terms ``subcultural capital''---knowledge of micro-genres functioning as cultural currency within dance music communities~\cite{thornton2013club}. EDM genres thus operate less as stable taxonomic categories and more as what the same author calls ``taste cultures'': fluid social formations organized around aesthetic preferences and production techniques.
+
+	Previous EDM classification research has predominantly employed supervised learning with industry-provided labels~\cite{caparrini2020,shu2024,knees2015,faraldo2016,popli2022,hsu2021}. However, these approaches assume label validity without examining whether the prescribed taxonomy aligns with acoustic reality. This assumption may be problematic: genre distinctions in EDM are frequently tied to specific production tools and techniques---from the Roland TB-303 that defined Acid House to the sidechain-compression aesthetics of modern Progressive House~\cite{butler2014playing}---and these production-level cues may not be fully captured by standard audio features, further complicating the relationship between acoustic measurement and genre identity.
+
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=\columnwidth]{figs/paper/tsne.png}
+		\caption{t-SNE projection of selected acoustic features (Section~\ref{ssec:features}). Left: 20 natural clusters discovered by K-means. Right: the same points colored by their 35 commercial genre labels. The right panel's color fragmentation within spatially coherent regions illustrates the overspecification of industry taxonomy relative to acoustic structure.}
+		\label{fig:tsne}
+	\end{figure}
+
+	This potential misalignment motivates our central research question: Does EDM's commercial genre taxonomy reflect its underlying acoustic structure? Figure~\ref{fig:tsne} visualizes this tension---when the same tracks are organized by acoustic similarity versus market labels, different patterns emerge. We investigate this disconnect through clustering, allowing natural groupings to emerge without presupposing the validity of industry categories.
+
+	Our contributions include: (1) A heuristically constructed acoustic feature space tailored to EDM---spanning spectral-harmonic, production, texture, and rhythmic dimensions---applicable to further downstream tasks such as genre discovery, recommendation, and playlist generation, (2) Evidence that EDM's commercial taxonomy is overspecified by over one-third: convergence to $\sim$20 natural clusters versus 35 prescribed genres across diverse feature representations and clustering methods.
+
+
+	\section{Dataset and Features}\label{sec:data}
+	
+	\subsection{Dataset}\label{ssec:dataset}
+	We construct our dataset from Beatport, collecting the top 100 hit tracks from each of 35 genres (3,500 total) as of March 2025. On Beatport, genre labels are assigned by artists and labels who select from a curated taxonomy maintained by the platform; genres thus originate from community and artist practice but are mediated through Beatport's fixed category list. Each track is listed under a single primary genre, so our dataset contains no duplicate tracks across categories. Note that some broad style names (e.g., ``Techno'') appear as qualifiers in multiple Beatport categories (e.g., Hard Techno, Melodic House \& Techno, Techno Peak Time / Driving); each of these is treated as a distinct genre in our analysis. We extract 2-minute previews at 320\,kbps with metadata including BPM, key, length, and genre labels. These chart-topping tracks represent established genre exemplars validated by commercial success.
+
+	\subsection{Feature Extraction}\label{ssec:features}
+	We extract 194 acoustic dimensions per track, processing audio identically at 44.1\,kHz. To capture EDM's production techniques, texture, and layered rhythmic patterns, we extract three complementary feature groups.
+
+	\textbf{Conventional MIR Features} (92 dimensions): Following established baselines~\cite{caparrini2020}, we extract (1) spectral shape features including centroid, spread, entropy, flux, and rolloff, (2) timbral descriptors comprising 13-band MFCCs, (3) harmonic features via 12-dimensional chroma vectors, and (4) rhythmic measures including autocorrelation-derived danceability, beat histogram periodicity, and frequency-band beat emphasis (energy restricted to beat-frames across 6 octave-spaced bands). We compute the mean and standard deviation of these frame-level metrics.
+	
+	\textbf{EDM Production Features} (38 dimensions): We adapt standard audio analysis tools alongside novel proxies to capture club-oriented mixing aesthetics. For dynamics, we compute the Harmonic-to-Percussive (H/P) energy ratio, crest factor, and RMS kurtosis using median-filtering separated components~\cite{fitzgerald2010} to quantify drum prominence and dynamic range compression (brickwalling). For spectral texture, we extract 7-band spectral contrast~\cite{jiang2002} to track synthesizer sharpness versus noise. For bass design, we introduce a novel sub-bass ratio (power beneath 60\,Hz) and a sidechain pumping proxy that measures the negative correlation between the kick-band envelope and high-frequency synthesizer envelope.
+
+	\textbf{Tempogram-based Features} (64 dimensions): standard tempo estimation fails to capture EDM's layered rhythmic structures. Following~\cite{grosche2012}, we compute three complementary tempogram representations. The Fourier tempogram applies the short-time Fourier transform to a novelty curve (onset-strength envelope) and converts the result to tempo units:
+	\begin{equation}
+		T^F(t,\tau) = |\mathcal{F}(t,\tau/60)|
+	\end{equation}
+	where $t$ is the time frame, $\tau$ is tempo in BPM, and $\mathcal{F}(t,\omega)$ denotes the windowed Fourier transform of the novelty curve at frequency $\omega$. The autocorrelation tempogram similarly captures subharmonic periodicities via local autocorrelation. To remove octave ambiguities in both representations, we derive cyclic tempograms by pooling all tempi related by powers of two into a single octave:
+	\begin{equation}
+		C_\rho(t,s) = \sum_{\lambda \in [s\cdot\rho]} T(t,\lambda), \quad s \in [1,2)
+	\end{equation}
+	where $T(t,\lambda)$ is the tempogram value at time $t$ and tempo $\lambda$, $\rho$ is a reference tempo (60\,BPM), $s$ indexes position within the octave, and the sum runs over all $\lambda$ in the equivalence class $[s\cdot\rho]$ (i.e., tempi differing by powers of two). From each representation, we extract statistical summaries of the top tempo bins, including their BPM, mean magnitude, and temporal variability.
+
+	To validate that our findings reflect genuine acoustic structure rather than artifacts of our feature design, we additionally extract embeddings from two state-of-the-art pre-trained models:
+
+	\textbf{MERT-95M} (768 dimensions): a music-specific transformer trained on 160M music clips using masked language modeling~\cite{li2024mert}. MERT learns hierarchical music representations without genre labels.
+
+	\textbf{CLAP-tiny} (512 dimensions): a contrastive audio-language model trained on 630K audio-text pairs~\cite{wu2023clap}. CLAP's multimodal training provides a domain-agnostic perspective.
+
+	These embeddings serve as independent validation: if diverse feature representations converge to similar natural cluster counts despite different architectures, training objectives, and dimensionalities, this provides strong evidence that our discovered taxonomy reflects EDM's inherent acoustic organization rather than methodological choices.
+
+
+	\subsection{Feature Engineering and Selection}\label{ssec:selection}
+
+	We apply multi-scale preprocessing to enrich the feature space: polynomial expansion (degree-2 interaction terms between features), log-transformation of skewed distributions, and cross-domain products (e.g., spectral $\times$ rhythmic). Because many of the extracted acoustic and rhythmic features exhibit severe skewness and multimodal distributions, we apply a Yeo--Johnson Power Transformation~\cite{yeo2000new} to stabilize variance and mathematically gaussianize the feature space, optimizing it for variance-based clustering algorithms like K-Means.
+
+	The expanded feature space (395 features) contains substantial redundancy, so we apply a two-stage selection pipeline. First, we remove correlated features (Pearson $|r| > 0.95$), reducing the set to 181. Second, we apply \emph{hybrid selection} combining two complementary objectives:
+
+	\textbf{Stage 1: Greedy silhouette-optimized selection.} Starting from the single feature with the highest silhouette score (K-means, $k$=35, 50 restarts), we iteratively add the feature that maximizes silhouette when combined with the current set. This yields 20 features optimized for internal cluster quality.
+
+	\textbf{Stage 2: Ensemble genre-discriminative top-up.} We compute a multi-criteria ensemble score
+	\begin{equation}
+		S_{\mathrm{ens}}(f_i) = \frac{1}{|M|}\sum_{m \in M} w_m \cdot \hat{S}_m(f_i)
+	\end{equation}
+	where $\hat{S}_m(f_i) \in [0,1]$ is the min-max normalized importance score from method $m$, and $M$ includes ANOVA F-statistic, mutual information, Random Forest importance, Extra Trees importance, variance-based scoring, and cluster separation score ($|M|=6$, equal weights $w_m=1$). The 5 highest-scoring features not already selected in Stage~1 are added, yielding a final set of 25 features that balance cluster separability with genre-discriminative diversity.
+
+
+	\section{Methods}\label{sec:method}
+	\subsection{Clustering Methods}
+	We employ two clustering methods: hierarchical divisive clustering captures EDM's nested genre relationships, while K-means provides stable partitions for validation.
+
+	\textbf{Hierarchical Divisive Clustering.} We implement a divisive hierarchical clustering algorithm that iteratively splits clusters based on a heterogeneity score:
+	\begin{equation}
+		H(C) = \sigma^2(C) \cdot (1 + \text{sil}(C)) \cdot \log(|C| + 1)
+	\end{equation}
+	where $\sigma^2(C)$ represents cluster variance and $\text{sil}(C)$ is the silhouette coefficient of a tentative two-way split.
+
+	\textbf{K-means Clustering.} We use K-means++ initialization~\cite{arthur2007kmeans} with 50 restarts to ensure convergence to a stable solution. The algorithm minimizes within-cluster sum of squares. For natural cluster discovery, we test $k \in [15, 30]$ and select optimal $k$ via equal-weight consensus of four validity criteria: elbow method on inertia, silhouette coefficient~\cite{rousseeuw1987silhouettes}, Calinski-Harabasz index~\cite{calinski1974dendrite}, and Davies-Bouldin index~\cite{davies2009}. Each criterion votes for the $k$ at its point of diminishing returns (elbow detection); ties favor the more parsimonious solution.
+
+
+	\subsection{Evaluation Metrics}\label{ssec:metrics}
+
+	We evaluate clustering through three metric categories: external metrics measure agreement with commercial labels, internal metrics assess acoustic coherence, and distribution metrics prevent trivial solutions.
+
+	\textbf{External Metrics} (require commercial labels): Normalized Mutual Information (NMI) measures information shared between predicted and true labels; Adjusted Rand Index (ARI) quantifies pairwise agreement corrected for chance; Purity assigns each cluster to its majority class and computes overall accuracy; Mutual Information (MI) Score captures statistical dependence between clusterings.
+
+	\textbf{Internal Metrics} (based on structure): Silhouette coefficient~\cite{rousseeuw1987} measures how well samples fit within their clusters; Davies-Bouldin index~\cite{davies2009} evaluates the ratio of within-cluster to between-cluster distances (lower is better); Cophenetic Correlation Coefficient~\cite{sokal1962} assesses structure preservation through bootstrap stability analysis.
+
+	\textbf{Distribution Metrics}: Cluster Balance (entropy) and Normalized Cluster Balance measure uniformity of cluster sizes, important to avoid trivial solutions.
+
+	\section{Results}\label{sec:results}
+
+	\subsection{Acoustic Mismatch at the Commercial Scale}\label{ssec:constrained}
+	Table~\ref{tab:k35} compares clustering performance at $k$=35---matching the number of commercial genres---across our extracted features and two pre-trained embedding baselines.
+
+	A consistent pattern emerges: no method produces meaningful alignment with commercial labels, with even the best NMI and ARI falling well below accepted thresholds for cluster-label correspondence (NMI$>$0.6, ARI$>$0.3). This uniformly poor agreement is itself a central finding---it indicates a systematic mismatch between acoustic reality and commercial taxonomy, independent of feature representation or clustering algorithm.
+
+	Within this landscape, our handcrafted features substantially outperform pre-trained embeddings on internal quality, achieving roughly $2.5\times$ higher silhouette scores and $25\%$ lower Davies-Bouldin indices than both MERT and CLAP. This gap suggests that EDM genre structure is better captured by domain-specific temporal and production-level descriptors than by general-purpose audio representations. Among our methods, K-means produces higher-quality clusters than Divisive across all metrics---consistent with the silhouette-optimized selection and Yeo--Johnson gaussianization, which create a feature space geometrically suited to centroid-based partitioning.
+
+	Notably, CLAP achieves marginally better ARI and cluster balance than our features, likely encoding label-like semantic structure through its audio-language training that distributes tracks more evenly---but less precisely---across clusters. This trade-off reinforces our thesis: maximizing acoustic separability does not recover the commercial taxonomy, because many genre boundaries are drawn along non-acoustic lines.
+
+	\begin{table}[t]
+		\centering
+		\caption{Clustering Performance Metrics ($k$ = 35)}
+		\label{tab:k35}
+		\resizebox{\columnwidth}{!}{%
+			\begin{tabular}{l|cc|cc}
+				\toprule
+				& \multicolumn{2}{c|}{\textbf{Extracted Features}} & \multicolumn{2}{c}{\textbf{*Pre-trained Embeddings}} \\
+				\textbf{Metric} & \textsc{K-means} & \textsc{Divisive} & \textsc{MERT-95M} & \textsc{CLAP-tiny} \\
+				\midrule
+				\multicolumn{5}{l}{\textit{Internal}} \\
+				Silhouette$\uparrow$ & \textbf{0.1231} & \underline{0.1023} & 0.0491 & 0.0496 \\
+				Davies-Bouldin$\downarrow$ & \textbf{2.0485} & \underline{2.2200} & 2.7440 & 2.7764 \\
+				Cophenetic$\uparrow$ & \textbf{0.5301} & \textbf{0.5301} & \underline{0.3657} & 0.2682 \\
+				\midrule
+				\multicolumn{5}{l}{\textit{External}} \\
+				ARI$\uparrow$ & \underline{0.1170} & 0.0827 & 0.0982 & \textbf{0.1174} \\
+				NMI$\uparrow$ & \textbf{0.3485} & 0.3128 & 0.2949 & \underline{0.3197} \\
+				MI Score$\uparrow$ & \textbf{1.2260} & 1.0581 & 1.0182 & \underline{1.1267} \\
+				Purity$\uparrow$ & \textbf{0.2769} & 0.2360 & 0.2177 & \underline{0.2632} \\
+				\midrule
+				\multicolumn{5}{l}{\textit{Distribution}} \\
+				Balance$\uparrow$ & \underline{3.4811} & 3.2094 & 3.3499 & \textbf{3.4940} \\
+				Norm.\ Bal.$\uparrow$ & \underline{0.9791} & 0.9027 & 0.9422 & \textbf{0.9827} \\
+				\bottomrule
+				\multicolumn{5}{l}{\scriptsize $\uparrow$Higher is better, $\downarrow$Lower is better, \textbf{bold} = best, \underline{underline} = 2nd} \\
+				\multicolumn{5}{l}{\scriptsize *All pre-trained embeddings use K-means clustering} \\
+			\end{tabular}%
+		}
+	\end{table}
+
+	\begin{figure}[!t]
+		\centering
+		\includegraphics[width=0.95\columnwidth]{figs/paper/feature_importance.png}
+		\caption{(a) Top-25 features ranked by ensemble score, stacked by scoring method contribution. (b) Importance by feature category: box-and-strip plots showing the ensemble-score distribution within each of the three feature categories defined in Section~\ref{ssec:features}. EDM-specific features (Production \& Texture, Tempogram-Based) substantially outperform standard MIR descriptors, confirming that EDM genre identity is governed primarily by temporal and production-level structure rather than by static timbral or spectral properties.}
+		\label{fig:features}
+	\end{figure}
+    
+	Figure~\ref{fig:features} reveals the discriminative power of our feature set, with rhythmic (BPM) and tempogram-derived descriptors dominating the top ranks. The greedy silhouette-optimized selection (Stage~1) exclusively selected tempogram and cyclic tempogram features, confirming that EDM's identity is defined less by static timbral or spectral properties and more by temporal evolution---build-ups, drops, and layered rhythmic patterns that shape its dancefloor functionality. The ensemble top-up (Stage~2) added energy and spectral modulation features, providing complementary genre-discriminative diversity.
+
+	\subsection{Natural Clustering Structure}\label{ssec:natural}
+
+	Since K-means yields the highest-quality clusters at $k$=35 and the consensus criteria for optimal-$k$ selection require sweeping over $k$ values---a procedure native to partitional methods---we adopt K-means for natural-$k$ discovery. When removing the $k$=35 constraint, equal-weight consensus of four validity criteria (silhouette, inertia elbow, Calinski-Harabasz, Davies-Bouldin; see Appendix~\ref{app:validation} for detailed curves) identifies $k$=20 as the optimal number of clusters. The convergence of natural cluster counts across all approaches (19--23 versus the prescribed 35) provides consistent evidence that EDM's commercial taxonomy is acoustically overspecified by over one-third.
+
+
+	We emphasize that this finding concerns \emph{acoustic} overspecification and does not imply that the commercial taxonomy is inherently flawed. Genre labels serve cultural, historical, and commercial functions that extend well beyond acoustic separability---they encode community identity, regional scene affiliations, DJ set-programming conventions, and listener expectations shaped by years of cultural practice~\cite{brackett2016}. Two genres may be acoustically near-identical yet culturally distinct, and such distinctions are legitimate from a music-industry perspective. Our claim is narrower: when evaluated strictly on the basis of audio features, approximately one-third of the prescribed 35 categories lack sufficient acoustic differentiation to form distinct clusters, suggesting that the current taxonomy subdivides what are, acoustically, coherent styles.
+
+	\subsubsection{Cluster--Genre Correspondence}
+
+	Figure~\ref{fig:confusion} presents the confusion matrix between the 35 commercial genre labels and the 35 discovered clusters (at $k$=35), revealing which genres merge under data-driven clustering. Several genre pairs consistently co-occur within the same clusters: Melodic House \& Techno shares clusters with Progressive House; Minimal--Deep Tech overlaps heavily with Tech House; and the three Trance variants (Main Floor, Raw--Deep--Hypnotic, Peak Time--Driving) fragment across shared clusters rather than forming distinct groups. These merges are musically intuitive---the genres in question share tempo ranges, rhythmic structures, and production aesthetics---suggesting that the acoustic overlap reflects genuine stylistic proximity rather than feature-set limitations. Based on this analysis, the strongest candidates for acoustic consolidation include: \{Melodic House \& Techno, Progressive House\}, \{Minimal--Deep Tech, Tech House\}, \{the three Trance variants\}, and \{Bass House, Bass--Club\}.
+
+	Conversely, several genres maintain high cluster purity: Hard Techno concentrates 138 of its 100 sampled tracks into a single cluster, Amapiano forms a near-exclusive cluster (261 songs), and Trance (Main Floor) achieves 149 songs in its dominant cluster. These ``crystallized'' genres occupy distinct regions of feature space, confirming that our features \emph{can} resolve genres when genuine acoustic differences exist.
+
+	\begin{figure*}[t]
+		\centering
+		\includegraphics[width=0.85\textwidth]{figs/paper/confusion_matrix.png}
+		\caption{Confusion matrix between 35 commercial genre labels (rows) and 35 discovered clusters (columns). Cell values show song counts. High off-diagonal concentrations indicate genre pairs that merge under acoustic clustering---for example, Melodic House \& Techno and Progressive House share clusters 0 and 14, while the three Trance variants spread across clusters 14, 22, and 23. Genres with strong diagonal dominance (e.g., Hard Techno in cluster 7, Amapiano in cluster 22) maintain acoustic distinctiveness.}
+		\label{fig:confusion}
+	\end{figure*}
+
+	\subsubsection{Genre Purity and Acoustic Extremity}
+
+	Figure~\ref{fig:profiles} reveals that genre purity correlates with acoustic extremity. Pure clusters occupy feature space vertices---for example, clusters dominated by DJ Tools tracks (clusters 5, 26, and 18 in the $k$=35 solution) maximize Electronic features while minimizing others. We note that DJ Tools is not a traditional genre but a utility category containing loops, samples, and mixing elements for DJs; these tracks span diverse acoustic profiles, which is why they appear across multiple clusters. Despite this caveat, their extreme acoustic positioning confirms that production-specific content creates distinct signatures. Similarly, Ambient-dominated clusters prioritize Harmonic over Rhythmic features. These extremes---whether functional (DJ Tools) or artistic (Ambient)---demonstrate how specialized production constraints create acoustic signatures that resist genre hybridization.
+
+	Conversely, mixed-genre clusters (11--20\% purity) display varied but less extreme profiles. Rather than converging to a uniform center, they represent distinct hybrid styles---Trap-Future (C30) extends on Electronic/Rhythmic axes while Melodic House (C32) balances multiple dimensions. This diversity suggests genre blending occurs through multiple pathways rather than a single ``neutral'' acoustic space, with each hybrid drawing differently from parent traditions.
+
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=0.95\columnwidth]{figs/paper/musical_profile.png}
+		\caption{Pure clusters occupy feature extremes, while mixed clusters show more moderate rankings. The profiles are derived by aggregating 159 audio features into six interpretable dimensions: Energy (RMS, loudness, amplitude), Danceability (groove, beat strength), Tempo (BPM), Harmonic (chroma, tonnetz, pitch features), Rhythmic (tempogram, onset, percussive, beat features), and Electronic (spectral, MFCC, timbre features). Features were z-score normalized before aggregation. Values shown are percentile rankings (0--100) indicating relative position within the distribution of all clusters. Profiles represent cluster means.}
+		\label{fig:profiles}
+	\end{figure}
+
+
+	\subsubsection{Implications for Genre Organization}
+
+	The pattern observed in Figure~\ref{fig:profiles} suggests EDM operates through two distinct modes: ``crystallized'' genres at acoustic extremes maintaining distinct identities through specialized production choices, and ``liquid'' zones in the center enabling creative exploration and genre evolution. The improvement in clustering quality when allowing natural groupings ($k$=20 vs $k$=35) combined with these purity patterns indicates that many commercial genre distinctions may subdivide what are acoustically coherent styles, while genuine acoustic boundaries occur at the extremes where production techniques diverge most dramatically.
+
+	This finding suggests that effective music information retrieval should account for this core-periphery structure, where genre boundaries are clearest at the extremes but deliberately blurred in the hybrid center.
+
+
+	\subsection{Hierarchical Genre Families}\label{ssec:hierarchy}
+
+	Figure~\ref{fig:dendrograms} reveals consistent hierarchical patterns across clustering methods. Three primary genre families emerge with remarkable stability:
+
+	\textbf{The UK Continuum:} Drum \& Bass, Dubstep, UK Garage, and Breaks consistently form tight clusters, validating Reynolds' ``hardcore continuum'' thesis~\cite{reynolds2013energy}. This acoustic affinity reflects shared origins in UK rave culture and common production techniques---chopped breaks, sub-bass emphasis, and syncopated rhythms at related tempos (70/140/170\,BPM as octave equivalents).
+
+	\textbf{House Archipelago:} Deep House, Tech House, Afro House, and Organic House cluster at intermediate heights, suggesting related but distinct aesthetic positions within House music's broad ecosystem. The inclusion of Amapiano in this cluster confirms its emergence as a House variant rather than an independent genre.
+
+	\textbf{Trance-Progressive Axis:} Progressive House, Melodic House \& Techno, and Trance variants show the tightest clustering, reflecting their shared emphasis on long-form structure, harmonic progression, and the buildup-breakdown dramaturgy central to festival culture~\cite{butler2014playing}.
+
+	The consistency of these families across methods indicates that these relationships are robust features of the acoustic space rather than algorithmic artifacts, supporting computational genre genealogies as genuine insights into EDM's cultural evolution.
+
+	\begin{figure*}[t]
+		\centering
+		\includegraphics[width=0.85\textwidth]{figs/paper/dendrograms.png}
+		\caption{Dendrograms showing hierarchical relationships between clusters across clustering methods. For non-hierarchical methods (K-means and consensus), hierarchy is created by clustering the cluster centers, which are labeled by the genre with the highest proportion in each cluster. Purity and cluster-size distributions are shown within each dendrogram.}
+		\label{fig:dendrograms}
+	\end{figure*}
+
+	\begin{figure*}[t]
+		\centering
+		\includegraphics[width=0.85\textwidth]{figs/paper/emergence_analysis.png}
+		\caption{Genre infusion and emergence analysis. The four panels show: (a) t-SNE visualization colored by hybridity score ($\bar{h}=0.487$), confirming that genre blending is the norm rather than the exception; (b) novelty detection highlighting acoustically atypical tracks; (c) emerging-genre candidates identified through combined hybridity and novelty; (d) distribution of hybridity scores across genres.}
+		\label{fig:emergence}
+	\end{figure*}
+
+
+	\section{Conclusion}\label{sec:conclusion}
+	We presented an unsupervised approach to analyzing EDM taxonomy through clustering with audio descriptors. A key challenge was the absence of established guidelines for EDM feature design; we addressed this by constructing a tailored acoustic feature space spanning spectral-harmonic, production, texture, and rhythmic dimensions. Our findings indicate that natural acoustic clustering produces over one-third fewer distinct groups than commercial taxonomy suggests (20 compared to 35), with convergent evidence from pre-trained embeddings validating this overspecification.
+
+	This work contributes to understanding the relationship between acoustic properties and genre labels. We note that genre categories are not invented by platforms but emerge from artist and community practice before being codified into fixed taxonomies by distributors such as Beatport. Our results suggest that this codification process preserves more distinctions than the acoustic signal warrants---raising the broader hypothesis that genre labels, whether community-driven or commercially curated, tend toward overspecification when cultural and acoustic criteria are conflated. MIR systems might benefit from hierarchical approaches that distinguish between acoustic similarity and commercial categorization, for instance a two-tier system using acoustic clusters mapped to commercial labels to balance computational efficiency with user expectations.
+
+	Our analysis has two key limitations. First, it focuses solely on acoustic features and does not capture the cultural, historical, or scene-level factors that legitimately motivate genre distinctions. Second, many EDM genres differ through subtle timbral and production-level cues---drum-machine palettes, synthesizer families, bass modulation patterns, and genre-specific groove micro-timing---that may not be fully resolved by our feature set. Genre merging in our clustering may therefore partly reflect insufficient feature granularity rather than genuine acoustic equivalence. Future work should investigate whether fine-grained timbral descriptors (e.g., modulation spectral features, synthesis-aware representations) can recover distinctions that our current features miss, and whether incorporating cultural metadata yields a richer picture of genre organization.
+
+	\begin{acknowledgments}
+		The authors would like to thank Jingbang Liu for developing the web scraping infrastructure used for systematic data collection from Beatport, and Haotian Fang for productive discussions regarding feature selection. Their contributions were instrumental to this research.
+	\end{acknowledgments}
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%bibliography here
+	\bibliography{smc2026bib}
+
+	\appendix
+	\section{Feature Taxonomy}\label{app:features}
+
+	Table~\ref{tab:feature_taxonomy} maps each feature category to its musicological significance and EDM production relevance, providing context for why these features were selected.
+
+	\begin{table*}[t]
+		\centering\small
+		\caption{Feature taxonomy: computational measurements, musicological significance, and EDM production relevance.}
+		\label{tab:feature_taxonomy}
+		\begin{tabular}{p{1.8cm}p{3.2cm}p{4.8cm}p{5cm}}
+			\toprule
+			\textbf{Category} & \textbf{Feature} & \textbf{Musicological Significance} & \textbf{EDM Production Relevance} \\
+			\midrule
+			Timbral & Spectral centroid, spread, entropy, flux, rolloff; MFCCs; ZCR
+			& Captures Smalley's spectral space---brightness, density, and dynamic evolution of synthesized sounds
+			& Distinguishes filter automation in Deep House from distortion in Dubstep; identifies synthesis methods (analog vs.\ FM) \\
+			\midrule
+			Rhythmic & Tempo/BPM; autocorrelation-derived danceability; frequency-band beat emphasis
+			& Tempo as cultural signifier---from House's 120--130\,BPM to D\&B's 160--180\,BPM; quantifies groove mechanics
+			& Genre boundaries defined by BPM ranges; beat-band profiles reveal sub-bass drops (Trap) vs.\ mid-range punch (Techno) \\
+			\midrule
+			Production \& Dynamics & H/P ratio, crest factor, sub-bass ratio, sidechain proxy, spectral contrast
+			& Quantifies mastering constraints, timbral sharpness, and frequency-specific energy interactions
+			& Captures brickwall compression (loudness war), sub-woofer focus, and ducking aesthetics essential to modern club tracks \\
+			\midrule
+			Temporal & Fourier, autocorrelation, and cyclic tempograms
+			& Rhythmic spectrogram capturing tempo evolution and periodicities
+			& Reveals build-up acceleration, breakdown deceleration; identifies half-time/double-time switches (Dubstep, D\&B) \\
+			\midrule
+			Harmonic & Chroma vectors; chroma deviation
+			& Maps tonal vocabularies---essential for EDM's modal practices
+			& Distinguishes modal Techno from jazz-influenced Liquid D\&B; measures repetition vs.\ harmonic progression \\
+			\bottomrule
+		\end{tabular}
+	\end{table*}
+
+	\section{High-Recall Cluster Profiles}\label{app:profiles}
+
+	Figure~\ref{fig:radar_recall} presents radar-chart profiles for the five highest-recall clusters, showing their acoustic signatures across six interpretable dimensions.
+
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=0.95\columnwidth]{figs/paper/radar_recall.png}
+		\caption{Acoustic profiles of the five highest-recall clusters, showing percentile rankings across six feature dimensions: Energy, Danceability, Tempo, Harmonic, Rhythmic, and Electronic. Each profile reveals the distinctive acoustic signature that enables high genre recovery.}
+		\label{fig:radar_recall}
+	\end{figure}
+
+	\section{Cluster Validation Curves}\label{app:validation}
+
+	Figure~\ref{fig:validation} shows how each of the four validity criteria evolves across $k$=10--30: silhouette score plateaus around $k$=18--20 while inertia and Davies-Bouldin reach elbow points near $k$=20, confirming that further splitting yields diminishing returns.
+
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=0.95\columnwidth]{figs/paper/natural_k_validation.png}
+		\caption{Cluster validation metrics across $k$=10--30 (K-means). The dashed line marks the consensus optimum at $k$=20, determined by equal-weight voting of elbow points across all four criteria.}
+		\label{fig:validation}
+	\end{figure}
+
+\end{document}

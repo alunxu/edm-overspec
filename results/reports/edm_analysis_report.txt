@@ -3,30 +3,30 @@ EDM GENRE ANALYSIS - FINAL REPORT
 ============================================================
 
 DATA SUMMARY:
-- Songs analyzed: 3350
+- Songs analyzed: 3500
 - Original genres: 35
-- Original features: 198
-- Engineered features: 392
-- Selected features: 100
+- Original features: 197
+- Engineered features: 395
+- Selected features: 25
 
 KEY FINDINGS:
-- Natural acoustic families: 8
+- Natural acoustic families: 20
 - Industry genre categories: 35
-- Over-segmentation: 27 excess categories
+- Over-segmentation: 15 excess categories
 
 CLUSTERING QUALITY:
-- Natural vs Genres NMI: 0.178
-- Forced vs Genres NMI: 0.342
-- Natural vs Forced NMI: 0.604
+- Natural vs Genres NMI: 0.320
+- Forced vs Genres NMI: 0.348
+- Natural vs Forced NMI: 0.770
 
 INTERPRETATION:
 The EDM industry's 35-genre taxonomy appears to be over-segmented
-by approximately 27 categories. The data naturally forms 8
+by approximately 15 categories. The data naturally forms 20
 distinct acoustic families, suggesting significant marketing-driven
 categorization beyond actual musical differences.
 
 RECOMMENDATIONS:
-1. Consolidate to 8 core acoustic families
+1. Consolidate to 20 core acoustic families
 2. Use marketing variations as sub-categories
 3. Merge acoustically identical genres identified in convergence analysis
 4. Base future genre decisions on acoustic similarity metrics
