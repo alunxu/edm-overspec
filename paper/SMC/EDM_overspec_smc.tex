@@ -50,7 +50,7 @@
 	\begin{figure}[t]
 		\centering
 		\includegraphics[width=\columnwidth]{figs/paper/fig1_tsne.png}
-		\caption{t-SNE projection of selected acoustic features (Section~\ref{ssec:features}). Left: 20 natural clusters discovered by K-means. Right: the same points colored by their 35 commercial genre labels. The right panel's color fragmentation within spatially coherent regions illustrates the overspecification of industry taxonomy relative to acoustic structure.}
+		\caption{t-SNE projection of the EDM acoustic feature space. Left: 20 natural clusters discovered via K-means optimization. Right: identical projection colored by the 35 commercial Beatport genre labels. The severe color fragmentation within spatially cohesive acoustic regions visually demonstrates the overspecification of the commercial taxonomy.}
 		\label{fig:tsne}
 	\end{figure}
 
@@ -172,7 +172,7 @@
 	\begin{figure}[!t]
 		\centering
 		\includegraphics[width=\columnwidth]{figs/paper/fig2_feature_importance.png}
-		\caption{(a) Top-25 features ranked by ensemble score, stacked by scoring method contribution. (b) Importance by feature category: box-and-strip plots showing the ensemble-score distribution within each of the three feature categories defined in Section~\ref{ssec:features}. EDM-specific features (Production \& Texture, Tempogram-Based) substantially outperform standard MIR descriptors, confirming that EDM genre identity is governed primarily by temporal and production-level structure rather than by static timbral or spectral properties.}
+		\caption{Feature importance analysis. (a) Top-25 features ranked by an ensemble of evaluation metrics. (b) Importance distributions across feature categories. EDM-specific descriptors (Production \& Texture, Tempogram-based) drastically outperform standard MIR timbral features, confirming that genre identity in EDM is governed primarily by temporal evolution and mastering aesthetics rather than static spectral properties.}
 		\label{fig:features}
 	\end{figure}
     
@@ -213,7 +213,7 @@
 	\begin{figure}[t]
 		\centering
 		\includegraphics[width=0.95\columnwidth]{figs/paper/fig4_musical_profile.png}
-		\caption{Radar profiles for the purest and most mixed clusters. Each vertex aggregates z-score-normalized features into one of six dimensions: Energy (RMS, loudness, dynamic range, energy ratios), Danceability (danceability, beat regularity, sidechain modulation), Tempo (BPM, tempo histogram peaks), Harmonic (chroma vectors, harmonic-to-percussive ratio), Rhythmic (onsets, percussive density, kick prominence, tempogram strengths), and Electronic texture (spectral shape, MFCCs, spectral contrast, sub-bass ratio). Values are scaled to 0--100 via $p_5$/$p_{95}$ interpolation. Pure clusters occupy feature extremes; mixed clusters show overlapping, moderate profiles.}
+		\caption{Acoustic archetypes of the purest versus most hybridized clusters. Each vertex aggregates z-normalized features into one of six macro-dimensions, scaled to 0--100 via $p_5$/$p_{95}$ interpolation. Pure clusters (e.g., DJ Tools, Ambient) localize at feature extremes, highlighting highly specialized production constraints, whereas hybrid mainstream clusters exhibit moderate, overlapping acoustic profiles.}
 		\label{fig:profiles}
 	\end{figure}
 
@@ -230,7 +230,7 @@
 	\begin{figure}[!t]
 		\centering
 		\includegraphics[width=0.45\textwidth]{figs/paper/fig5_dendrograms.png}
-		\caption{Hierarchical genre structure derived from co-clustering affinity. Distance is computed as $1-\hat{a}_{ij}$, where $\hat{a}_{ij}$ is the normalised co-clustering frequency between genres $i$ and $j$ across 50 K-means runs ($k$=35). The dendrogram reveals two acoustic poles---a tightly knit UK bass cluster and isolated functional/atmospheric outliers---separated by a broad middle gradient where house, trance, and techno variants interleave, reflecting the continuous nature of EDM's acoustic space.}
+		\caption{Hierarchical genre lineage derived from co-clustering affinity ($1-\hat{a}_{ij}$, where $\hat{a}_{ij}$ is the normalized co-clustering frequency across 50 K-means restarts). The dendrogram exposes two rigid acoustic poles---a tightly knit UK Bass cluster and isolated functional/atmospheric outliers---separated by a massive middle gradient where house, trance, and techno variants indiscriminately interleave, proving the continuous nature of the mainstream acoustic space.}
 		\label{fig:dendrograms}
 	\end{figure}
     
@@ -313,7 +313,7 @@
 	\begin{figure}[t]
 		\centering
 		\includegraphics[width=0.95\columnwidth]{figs/paper/figa2_natural_k_validation.png}
-		\caption{Cluster validation metrics across $k$=10--30 (K-means). The dashed line marks the consensus optimum at $k$=20, determined by equal-weight voting of elbow points across all four criteria.}
+		\caption{Natural cluster discovery across $k \in [10, 30]$. The vertical dashed line marks the consensus global optimum at $k$=20, determined by equal-weight voting of the critical inflection (elbow) points across all four structural validity criteria.}
 		\label{fig:validation}
 	\end{figure}
 
@@ -324,7 +324,7 @@
 	\begin{figure}[!t]
 		\centering
 		\includegraphics[width=0.95\columnwidth]{figs/paper/figa3_sensitivity_dj_tools.png}
-		\caption{Sensitivity analysis: cluster validation metrics with all 35 genres (blue) versus excluding DJ Tools (orange). Metric curves nearly overlap, confirming that DJ Tools inclusion does not materially affect the optimal-$k$ determination.}
+		\caption{Sensitivity analysis isolating the structural impact of the ``DJ Tools'' utility category. Global metric curves fundamentally overlap whether DJ Tools are included (blue) or excluded (orange), confirming that this functional category does not distort the underlying optimal-$k$ consensus.}
 		\label{fig:sensitivity}
 	\end{figure}
 
@@ -335,7 +335,7 @@
 	\begin{figure}[!t]
 		\centering
 		\includegraphics[width=0.95\columnwidth]{figs/paper/figa4_phantom_genre_profiles.png}
-		\caption{Acoustically convergent genre pairs identified by dual filtering (high co-clustering and profile difference $\Delta < 15$). Each subplot overlays the radar profiles of two commercially distinct genres whose acoustic signatures nearly coincide, illustrating cases where taxonomic boundaries lack acoustic support.}
+		\caption{Acoustically convergent ``phantom'' boundaries identified via dual filtering (high co-clustering frequency and mean profile difference $\Delta < 15$). Each subplot overlays the radar profiles of two commercially distinct genres possessing nearly identical acoustic signatures, illustrating explicit cases where commercial taxonomic boundaries lack concrete acoustic justification.}
 		\label{fig:convergent}
 	\end{figure}
 
