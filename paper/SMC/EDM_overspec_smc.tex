@@ -277,7 +277,7 @@
 			\midrule
 			\multicolumn{4}{l}{\textbf{Conventional MIR}} \\
 			\midrule
-			Timbral & Spectral centroid, spread, entropy, flux, rolloff; MFCCs; ZCR; energy & energy entropy; spectral flatness & bandwidth
+			Timbral & Spectral centroid, spread, entropy, flux, rolloff; MFCCs; ZCR; energy \& energy entropy; spectral flatness \& bandwidth
 			& Captures Smalley's spectral space---brightness, density, and dynamic evolution of synthesized sounds
 			& Distinguishes filter automation in Deep House from distortion in Dubstep; identifies synthesis methods (analog vs.\ FM) \\
 			\addlinespace
@@ -321,7 +321,7 @@
 
 	To verify that including DJ Tools---a utility category rather than a traditional genre---does not distort our findings, we re-ran the natural-$k$ consensus procedure after excluding all 100 DJ Tools tracks. The four validity criteria individually voted for $k \in \{16, 18, 21, 22\}$ (a four-way tie, resolved to $k$=16 by the tie-breaking rule), compared with the original votes of $k \in \{20, 20, 23, 25\}$ (clear consensus at $k$=20). Figure~\ref{fig:sensitivity} shows that the metric curves with and without DJ Tools are nearly overlapping, confirming that this utility category has negligible influence on the cluster-quality landscape. The individual criterion votes without DJ Tools bracket the original $k$=20 result (range 16--22, median 19.5), and the apparent shift to $k$=16 reflects tie-breaking mechanics rather than a genuine structural difference in the data.
 
-	\begin{figure}[t]
+	\begin{figure}[!t]
 		\centering
 		\includegraphics[width=0.95\columnwidth]{figs/paper/figa3_sensitivity_dj_tools.png}
 		\caption{Sensitivity analysis: cluster validation metrics with all 35 genres (blue) versus excluding DJ Tools (orange). Metric curves nearly overlap, confirming that DJ Tools inclusion does not materially affect the optimal-$k$ determination.}
@@ -332,7 +332,7 @@
 
 	To identify genre pairs that are acoustically near-indistinguishable despite carrying distinct commercial labels, we apply a dual filter: (1) high co-clustering rate under K-means ($k$=35, 50 restarts), requiring that tracks from the two genres frequently land in the same cluster; and (2) a profile difference $\Delta < 15$, computed as the mean absolute difference across the six radar dimensions in Figure~\ref{fig:profiles}. Of 595 possible genre pairs, 273 pass the $\Delta$ threshold; applying the co-clustering filter yields the top convergent pairs shown in Figure~\ref{fig:convergent}.
 
-	\begin{figure}[t]
+	\begin{figure}[!t]
 		\centering
 		\includegraphics[width=0.95\columnwidth]{figs/paper/figa4_phantom_genre_profiles.png}
 		\caption{Acoustically convergent genre pairs identified by dual filtering (high co-clustering and profile difference $\Delta < 15$). Each subplot overlays the radar profiles of two commercially distinct genres whose acoustic signatures nearly coincide, illustrating cases where taxonomic boundaries lack acoustic support.}
