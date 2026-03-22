@@ -65,7 +65,7 @@
 	We construct our dataset from Beatport, collecting the top 100 hit tracks from each of 35 genres (3,500 total) as of March 2025. On Beatport, genre labels are assigned by artists and labels who select from a curated taxonomy maintained by the platform; genres thus originate from community and artist practice but are mediated through Beatport's fixed category list. Each track is listed under a single primary genre, so our dataset contains no duplicate tracks across categories. Note that some broad style names (e.g., ``Techno'') appear as qualifiers in multiple Beatport categories (e.g., Hard Techno, Melodic House \& Techno, Techno Peak Time / Driving); each of these is treated as a distinct genre in our analysis. One category, DJ Tools, is not a traditional genre but a utility class containing loops, samples, and mixing elements; we retain it because it is part of Beatport's official taxonomy, and a sensitivity analysis (Appendix~\ref{app:sensitivity}) confirms its inclusion does not materially affect our results. We extract 2-minute previews at 320\,kbps with metadata including BPM, key, length, and genre labels. These chart-topping tracks represent established genre exemplars validated by commercial success.
 
 	\subsection{Feature Extraction}\label{ssec:features}
-	We extract 194 acoustic dimensions per track, processing audio identically at 44.1\,kHz. To capture EDM's production techniques, texture, and layered rhythmic patterns, we extract three complementary feature groups.
+	We extract 194 acoustic dimensions per track, processing audio identically at 44.1\,kHz. To capture EDM's production techniques, texture, and layered rhythmic patterns, we extract three complementary feature groups (see Appendix~\ref{app:features} and Table~\ref{tab:feature_taxonomy} for a complete taxonomy).
 
 	\textbf{Conventional MIR Features} (92 dimensions): Following established baselines~\cite{caparrini2020}, we extract (1) spectral shape features including centroid, spread, entropy, flux, and rolloff, (2) timbral descriptors comprising 13-band MFCCs, (3) harmonic features via 12-dimensional chroma vectors, and (4) rhythmic measures including autocorrelation-derived danceability, beat histogram periodicity, and frequency-band beat emphasis (energy restricted to beat-frames across 6 octave-spaced bands). We compute the mean and standard deviation of these frame-level metrics.
 	
@@ -113,7 +113,7 @@
 	\end{equation}
 	where $\sigma^2(C)$ represents cluster variance and $\text{sil}(C)$ is the silhouette coefficient of a tentative two-way split.
 
-	\textbf{K-means Clustering.} We use K-means++ initialization~\cite{arthur2007kmeans} with 50 restarts to ensure convergence to a stable solution. The algorithm minimizes within-cluster sum of squares. For natural cluster discovery, we test $k \in [15, 30]$ and select optimal $k$ via equal-weight consensus of four validity criteria: elbow method on inertia, silhouette coefficient~\cite{rousseeuw1987silhouettes}, Calinski-Harabasz index~\cite{calinski1974dendrite}, and Davies-Bouldin index~\cite{davies2009}. Each criterion votes for the $k$ at its point of diminishing returns (elbow detection); ties favor the more parsimonious solution.
+	\textbf{K-means Clustering.} We use K-means++ initialization~\cite{arthur2007kmeans} with 50 restarts to ensure convergence to a stable solution. The algorithm minimizes within-cluster sum of squares. For natural cluster discovery, we test $k \in [15, 30]$ and select optimal $k$ via equal-weight consensus of four validity criteria: elbow method on inertia, silhouette coefficient~\cite{rousseeuw1987}, Calinski-Harabasz index~\cite{calinski1974dendrite}, and Davies-Bouldin index~\cite{davies1979}. Each criterion votes for the $k$ at its point of diminishing returns (elbow detection); ties favor the more parsimonious solution.
 
 
 	\subsection{Evaluation Metrics}\label{ssec:metrics}
@@ -122,7 +122,7 @@
 
 	\textbf{External Metrics} (require commercial labels): Normalized Mutual Information (NMI) measures information shared between predicted and true labels; Adjusted Rand Index (ARI) quantifies pairwise agreement corrected for chance; Purity assigns each cluster to its majority class and computes overall accuracy; Mutual Information (MI) Score captures statistical dependence between clusterings.
 
-	\textbf{Internal Metrics} (based on structure): Silhouette coefficient~\cite{rousseeuw1987} measures how well samples fit within their clusters; Davies-Bouldin index~\cite{davies2009} evaluates the ratio of within-cluster to between-cluster distances (lower is better); Cophenetic Correlation Coefficient~\cite{sokal1962} assesses structure preservation through bootstrap stability analysis.
+	\textbf{Internal Metrics} (based on structure): Silhouette coefficient~\cite{rousseeuw1987} measures how well samples fit within their clusters; Davies-Bouldin index~\cite{davies1979} evaluates the ratio of within-cluster to between-cluster distances (lower is better); Cophenetic Correlation Coefficient~\cite{sokal1962} assesses structure preservation through bootstrap stability analysis.
 
 	\textbf{Distribution Metrics}: Cluster Balance (entropy) and Normalized Cluster Balance measure uniformity of cluster sizes, important to avoid trivial solutions.
 
@@ -204,6 +204,8 @@
 
 	\subsubsection{Genre Purity and Acoustic Extremity}
 
+	To summarize each cluster's acoustic signature, we assign every extracted feature to one of six interpretable dimensions---Energy, Danceability, Tempo, Harmonic complexity, Rhythmic density, and Electronic texture---via an explicit, manually curated mapping that covers all features in the dataset (Section~\ref{ssec:features}), including the EDM-specific production descriptors. Within each dimension, features are z-score normalized before averaging so that all contribute equally regardless of scale. Each cluster's per-dimension mean is then scaled to 0--100 via \mbox{$p_5$/$p_{95}$} linear interpolation across the full corpus and clipped to $[0,100]$.
+
 	Figure~\ref{fig:profiles} reveals that genre purity correlates with acoustic extremity. The purest clusters occupy feature-space vertices: DJ Tools---a utility category of loops, samples, and mixing elements---maximizes Electronic texture while minimizing other dimensions, and its tracks span multiple clusters precisely because the category encompasses diverse production styles. Similarly, Ambient-dominated clusters push Harmonic features to extremes while compressing Rhythmic and Energy dimensions. These poles---whether functional (DJ Tools) or artistic (Ambient)---demonstrate how specialized production constraints create acoustic signatures that resist genre hybridization.
 
 	Conversely, the most mixed clusters exhibit moderate, overlapping profiles rather than converging to a single ``neutral'' center. Each hybrid style draws on parent traditions differently---bass-heavy clusters extend along Rhythmic and Electronic axes, while groove-oriented clusters balance Danceability and Energy---suggesting that genre blending follows multiple distinct pathways through the feature space.
@@ -211,7 +213,7 @@
 	\begin{figure}[t]
 		\centering
 		\includegraphics[width=0.95\columnwidth]{figs/paper/fig4_musical_profile.png}
-		\caption{Radar profiles for the purest and most mixed clusters, aggregating 159 audio features into six interpretable dimensions. Values are percentile rankings (0--100) across all clusters. Pure clusters occupy feature extremes with distinctive signatures, while mixed clusters show moderate, overlapping profiles that reflect genre hybridization through multiple pathways.}
+		\caption{Radar profiles for the purest and most mixed clusters. Each vertex aggregates z-score-normalized features into one of six dimensions: Energy (RMS, loudness, dynamic range, energy ratios), Danceability (danceability, beat regularity, sidechain modulation), Tempo (BPM, tempo histogram peaks), Harmonic (chroma vectors, harmonic-to-percussive ratio), Rhythmic (onsets, percussive density, kick prominence, tempogram strengths), and Electronic texture (spectral shape, MFCCs, spectral contrast, sub-bass ratio). Values are scaled to 0--100 via $p_5$/$p_{95}$ interpolation. Pure clusters occupy feature extremes; mixed clusters show overlapping, moderate profiles.}
 		\label{fig:profiles}
 	\end{figure}
 
@@ -223,31 +225,25 @@
 	This finding suggests that effective music information retrieval should account for this core-periphery structure, where genre boundaries are clearest at the extremes but deliberately blurred in the hybrid center.
 
 
-	\subsection{Hierarchical Genre Families}\label{ssec:hierarchy}
+	\subsection{Hierarchical Genre Structure}\label{ssec:hierarchy}
 
-	Figure~\ref{fig:dendrograms} reveals consistent hierarchical patterns across clustering methods. Three primary genre families emerge with remarkable stability:
-
-	\textbf{The UK Continuum:} Drum \& Bass, Dubstep, UK Garage, and Breaks consistently form tight clusters, validating Reynolds' ``hardcore continuum'' thesis~\cite{reynolds2013energy}. This acoustic affinity reflects shared origins in UK rave culture and common production techniques---chopped breaks, sub-bass emphasis, and syncopated rhythms at related tempos (70/140/170\,BPM as octave equivalents).
-
-	\textbf{House Archipelago:} Deep House, Tech House, Afro House, and Organic House cluster at intermediate heights, suggesting related but distinct aesthetic positions within House music's broad ecosystem. The inclusion of Amapiano in this cluster confirms its emergence as a House variant rather than an independent genre.
-
-	\textbf{Trance-Progressive Axis:} Progressive House, Melodic House \& Techno, and Trance variants show the tightest clustering, reflecting their shared emphasis on long-form structure, harmonic progression, and the buildup-breakdown dramaturgy central to festival culture~\cite{butler2014playing}.
-
-	The consistency of these families across methods indicates that these relationships are robust features of the acoustic space rather than algorithmic artifacts, supporting computational genre genealogies as genuine insights into EDM's cultural evolution.
-
-	\begin{figure*}[t]
+	\begin{figure}[!t]
 		\centering
-		\includegraphics[width=0.85\textwidth]{figs/paper/fig5_dendrograms.png}
-		\caption{Dendrograms showing hierarchical relationships between clusters across clustering methods. For non-hierarchical methods (K-means and consensus), hierarchy is created by clustering the cluster centers, which are labeled by the genre with the highest proportion in each cluster. Purity and cluster-size distributions are shown within each dendrogram.}
+		\includegraphics[width=0.45\textwidth]{figs/paper/fig5_dendrograms.png}
+		\caption{Hierarchical genre structure derived from co-clustering affinity. Distance is computed as $1-\hat{a}_{ij}$, where $\hat{a}_{ij}$ is the normalised co-clustering frequency between genres $i$ and $j$ across 50 K-means runs ($k$=35). The dendrogram reveals two acoustic poles---a tightly knit UK bass cluster and isolated functional/atmospheric outliers---separated by a broad middle gradient where house, trance, and techno variants interleave, reflecting the continuous nature of EDM's acoustic space.}
 		\label{fig:dendrograms}
-	\end{figure*}
+	\end{figure}
+    
+	To reveal hierarchical structure, we compute a \emph{co-clustering affinity} between every genre pair: across 50 independent K-means runs ($k$=35), we count how often tracks from two genres land in the same cluster, normalized by genre size. Converting affinity to distance ($1-\hat{a}_{ij}$) and applying average linkage yields the dendrogram in Figure~\ref{fig:dendrograms}. The resulting tree reveals that EDM's acoustic space is organized not as a set of discrete genre families but as a gradient between two poles, separated by a broad middle zone where most commercial labels overlap.
 
-	\begin{figure*}[t]
-		\centering
-		\includegraphics[width=0.85\textwidth]{figs/paper/fig6_emergence_analysis.png}
-		\caption{Genre infusion and emergence analysis. The four panels show: (a) t-SNE visualization colored by hybridity score ($\bar{h}=0.487$), confirming that genre blending is the norm rather than the exception; (b) novelty detection highlighting acoustically atypical tracks; (c) emerging-genre candidates identified through combined hybridity and novelty; (d) distribution of hybridity scores across genres.}
-		\label{fig:emergence}
-	\end{figure*}
+	\textbf{The UK Bass Pole.} At one extreme of the dendrogram, Drum \& Bass, Dubstep, 140/Grime, Hard Techno, and Hardcore form a tightly interconnected cluster that merges internally before joining any other genres. This cohesion is consistent with Reynolds' ``hardcore continuum'' thesis~\cite{reynolds2013energy}: shared production techniques---chopped breaks, sub-bass emphasis, and syncopated rhythms at related tempos (70/140/170\,BPM as octave equivalents)---create a distinct acoustic signature that resists hybridization.
+
+	\textbf{The Functional/Atmospheric Pole.} At the opposite extreme, DJ Tools and Ambient occupy isolated positions, merging last with the rest of the taxonomy. These categories are defined by specialized production constraints (utility loops and atmospheric textures, respectively) that place them at feature-space vertices, far from the mainstream.
+
+	\textbf{The Middle Gradient.} Between these poles lies a large, densely connected zone where house, trance, and techno variants interleave rather than forming self-contained blocks. Core house sub-clusters emerge (Deep House--House--Jackin House; Nu Disco--Funky House), as does a Trance--Mainstage pair, but these merge with non-sibling genres (e.g., Deep Trance clusters with Deep Techno; Breaks and UK Garage sit near Peak Techno; Melodic House \& Techno neighbours Indie Dance) before consolidating with their supposed families. This interleaving is the strongest structural evidence of overspecification: the commercial taxonomy imposes discrete boundaries on what the acoustic signal reveals to be a continuous gradient. The labels that fragment this middle zone---Tech House vs.\ Minimal, Progressive House vs.\ Melodic House \& Techno---subdivide acoustically overlapping styles for cultural and curatorial rather than acoustic reasons.
+
+
+
 
 
 	\section{Conclusion}\label{sec:conclusion}
@@ -278,39 +274,36 @@
 			\toprule
 			\textbf{Category} & \textbf{Feature} & \textbf{Musicological Significance} & \textbf{EDM Production Relevance} \\
 			\midrule
+			\multicolumn{4}{l}{\textbf{Conventional MIR}} \\
+			\midrule
 			Timbral & Spectral centroid, spread, entropy, flux, rolloff; MFCCs; ZCR
 			& Captures Smalley's spectral space---brightness, density, and dynamic evolution of synthesized sounds
 			& Distinguishes filter automation in Deep House from distortion in Dubstep; identifies synthesis methods (analog vs.\ FM) \\
-			\midrule
+			\addlinespace
 			Rhythmic & Tempo/BPM; autocorrelation-derived danceability; frequency-band beat emphasis
 			& Tempo as cultural signifier---from House's 120--130\,BPM to D\&B's 160--180\,BPM; quantifies groove mechanics
 			& Genre boundaries defined by BPM ranges; beat-band profiles reveal sub-bass drops (Trap) vs.\ mid-range punch (Techno) \\
+			\addlinespace
+			Harmonic & Chroma vectors; chroma deviation
+			& Maps tonal vocabularies---essential for EDM's modal practices
+			& Distinguishes modal Techno from jazz-influenced Liquid D\&B; measures repetition vs.\ harmonic progression \\
 			\midrule
-			Production \& Dynamics & H/P ratio, crest factor, sub-bass ratio, sidechain proxy, spectral contrast
+			\multicolumn{4}{l}{\textbf{Production and Texture}} \\
+			\midrule
+			Dynamics & H/P ratio, crest factor, sub-bass ratio, sidechain proxy, spectral contrast
 			& Quantifies mastering constraints, timbral sharpness, and frequency-specific energy interactions
 			& Captures brickwall compression (loudness war), sub-woofer focus, and ducking aesthetics essential to modern club tracks \\
+			\midrule
+			\multicolumn{4}{l}{\textbf{Tempogram-based}} \\
 			\midrule
 			Temporal & Fourier, autocorrelation, and cyclic tempograms
 			& Rhythmic spectrogram capturing tempo evolution and periodicities
 			& Reveals build-up acceleration, breakdown deceleration; identifies half-time/double-time switches (Dubstep, D\&B) \\
-			\midrule
-			Harmonic & Chroma vectors; chroma deviation
-			& Maps tonal vocabularies---essential for EDM's modal practices
-			& Distinguishes modal Techno from jazz-influenced Liquid D\&B; measures repetition vs.\ harmonic progression \\
 			\bottomrule
 		\end{tabular}
 	\end{table*}
 
-	\section{High-Recall Cluster Profiles}\label{app:profiles}
 
-	Figure~\ref{fig:radar_recall} presents radar-chart profiles for the five highest-recall clusters, showing their acoustic signatures across six interpretable dimensions.
-
-	\begin{figure}[t]
-		\centering
-		\includegraphics[width=0.95\columnwidth]{figs/paper/figa1_radar_recall.png}
-		\caption{Acoustic profiles of the five highest-recall clusters, showing percentile rankings across six feature dimensions: Energy, Danceability, Tempo, Harmonic, Rhythmic, and Electronic. Each profile reveals the distinctive acoustic signature that enables high genre recovery.}
-		\label{fig:radar_recall}
-	\end{figure}
 
 	\section{Cluster Validation Curves}\label{app:validation}
 
@@ -344,5 +337,7 @@
 		\caption{Acoustically convergent genre pairs identified by dual filtering (high co-clustering and profile difference $\Delta < 15$). Each subplot overlays the radar profiles of two commercially distinct genres whose acoustic signatures nearly coincide, illustrating cases where taxonomic boundaries lack acoustic support.}
 		\label{fig:convergent}
 	\end{figure}
+
+
 
 \end{document}

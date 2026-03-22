@@ -69,119 +69,173 @@ def get_natural_clusters(X_selected, n_clusters=35):
 
 
 # ────────────────────────────────────────────────────────────────
-#  Adaptive feature mapping & profile computation
+#  Explicit feature → dimension mapping (no pattern matching, no
+#  per-dimension cap).  Every numeric feature in all_features_194.csv
+#  is assigned to exactly one of the six radar dimensions.
 # ────────────────────────────────────────────────────────────────
 
-def explore_dataset_features(df):
-    """Categorise numeric columns by name patterns."""
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    categories = {
-        'ENERGY':    [], 'SPECTRAL':  [], 'MFCC':      [],
-        'CHROMA':    [], 'RHYTHM':    [], 'TIMBRE':     [],
-        'META':      [], 'OTHER':     [],
+# Energy – overall loudness / amplitude / dynamics
+_ENERGY_FEATURES = [
+    '2-Energym', '3-EnergyEntropym', '36-Energystd', '37-EnergyEntropystd',
+    '78-beats_loudness.mean', '79-beats_loudness.stdev',
+    'rms_mean', 'rms_std', 'rms_skew', 'rms_kurtosis',
+    'dynamic_range_db', 'crest_factor',
+    'energy_variance_8bar',
+    'energy_ratio_low', 'energy_ratio_mid', 'energy_ratio_high',
+]
+
+# Danceability – groove / regularity / sidechain pumping
+_DANCEABILITY_FEATURES = [
+    '77-danceability',
+    'beat_regularity',
+    'sidechain_mod_depth', 'sidechain_mod_rate',
+]
+
+# Tempo – BPM / tempo histogram peaks
+_TEMPO_FEATURES = [
+    'meta.Bpm', '69-BPM', '71-bpm',
+    '70-BPMconf',
+    '72-bpm_histogram_first_peak_bpm', '73-bpm_histogram_first_peak_weight',
+    '74-bpm_histogram_second_peak_bpm',
+    '75-bpm_histogram_second_peak_spread', '76-bpm_histogram_second_peak_weight',
+    'fourier_peak1_bpm', 'fourier_peak2_bpm', 'fourier_peak3_bpm',
+    'fourier_peak4_bpm', 'fourier_peak5_bpm',
+    'auto_peak1_bpm', 'auto_peak2_bpm', 'auto_peak3_bpm',
+    'auto_peak4_bpm', 'auto_peak5_bpm',
+]
+
+# Harmonic complexity – chroma / pitch / harmonic-to-percussive ratio
+_HARMONIC_FEATURES = [
+    '22-ChromaVector1m', '23-ChromaVector2m', '24-ChromaVector3m',
+    '25-ChromaVector4m', '26-ChromaVector5m', '27-ChromaVector6m',
+    '28-ChromaVector7m', '29-ChromaVector8m', '30-ChromaVector9m',
+    '31-ChromaVector10m', '32-ChromaVector11m', '33-ChromaVector12m',
+    '34-ChromaDeviationm',
+    '56-ChromaVector1std', '57-ChromaVector2std', '58-ChromaVector3std',
+    '59-ChromaVector4std', '60-ChromaVector5std', '61-ChromaVector6std',
+    '62-ChromaVector7std', '63-ChromaVector8std', '64-ChromaVector9std',
+    '65-ChromaVector10std', '66-ChromaVector11std', '67-ChromaVector12std',
+    '68-ChromaDeviationstd',
+    'hp_ratio_mean', 'hp_ratio_std',
+]
+
+# Rhythmic density – onset patterns / percussive content / tempogram peaks
+_RHYTHMIC_FEATURES = [
+    '80-onset_rate', 'percussive_onset_density', 'kick_prominence',
+    '81-beats_loudness_band_ratio.mean1', '82-beats_loudness_band_ratio.mean2',
+    '83-beats_loudness_band_ratio.mean3', '84-beats_loudness_band_ratio.mean4',
+    '85-beats_loudness_band_ratio.mean5', '86-beats_loudness_band_ratio.mean6',
+    '87-beats_loudness_band_ratio.stdev1', '88-beats_loudness_band_ratio.stdev2',
+    '89-beats_loudness_band_ratio.stdev3', '90-beats_loudness_band_ratio.stdev4',
+    '91-beats_loudness_band_ratio.stdev5', '92-beats_loudness_band_ratio.stdev6',
+    # tempogram peak strengths (non-BPM)
+    'fourier_peak1_mean', 'fourier_peak1_std',
+    'fourier_peak2_mean', 'fourier_peak2_std',
+    'fourier_peak3_mean', 'fourier_peak3_std',
+    'fourier_peak4_mean', 'fourier_peak4_std',
+    'fourier_peak5_mean', 'fourier_peak5_std',
+    'auto_peak1_mean', 'auto_peak1_std',
+    'auto_peak2_mean', 'auto_peak2_std',
+    'auto_peak3_mean', 'auto_peak3_std',
+    'auto_peak4_mean', 'auto_peak4_std',
+    'auto_peak5_mean', 'auto_peak5_std',
+    'cyclic_fourier_peak1_s', 'cyclic_fourier_peak1_mean', 'cyclic_fourier_peak1_std',
+    'cyclic_fourier_peak2_s', 'cyclic_fourier_peak2_mean', 'cyclic_fourier_peak2_std',
+    'cyclic_fourier_peak3_s', 'cyclic_fourier_peak3_mean', 'cyclic_fourier_peak3_std',
+    'cyclic_fourier_peak4_s', 'cyclic_fourier_peak4_mean', 'cyclic_fourier_peak4_std',
+    'cyclic_fourier_peak5_s', 'cyclic_fourier_peak5_mean', 'cyclic_fourier_peak5_std',
+    'cyclic_fourier_entropy', 'cyclic_fourier_peak_ratio',
+    'cyclic_auto_peak1_s', 'cyclic_auto_peak1_mean', 'cyclic_auto_peak1_std',
+    'cyclic_auto_peak2_s', 'cyclic_auto_peak2_mean', 'cyclic_auto_peak2_std',
+    'cyclic_auto_peak3_s', 'cyclic_auto_peak3_mean', 'cyclic_auto_peak3_std',
+    'cyclic_auto_peak4_s', 'cyclic_auto_peak4_mean', 'cyclic_auto_peak4_std',
+    'cyclic_auto_peak5_s', 'cyclic_auto_peak5_mean', 'cyclic_auto_peak5_std',
+    'cyclic_auto_entropy', 'cyclic_auto_peak_ratio',
+]
+
+# Electronic texture – spectral / timbral / MFCC / ZCR
+_ELECTRONIC_FEATURES = [
+    '1-ZCRm', '35-ZCRstd',
+    '4-SpectralCentroidm', '5-SpectralSpreadm', '6-SpectralEntropym',
+    '7-SpectralFluxm', '8-SpectralRolloffm',
+    '38-SpectralCentroidstd', '39-SpectralSpreadstd', '40-SpectralEntropystd',
+    '41-SpectralFluxstd', '42-SpectralRolloffstd',
+    '9-MFCCs1m', '10-MFCCs2m', '11-MFCCs3m', '12-MFCCs4m', '13-MFCCs5m',
+    '14-MFCCs6m', '15-MFCCs7m', '16-MFCCs8m', '17-MFCCs9m', '18-MFCCs10m',
+    '19-MFCCs11m', '20-MFCCs12m', '21-MFCCs13m',
+    '43-MFCCs1std', '44-MFCCs2std', '45-MFCCs3std', '46-MFCCs4std',
+    '47-MFCCs5std', '48-MFCCs6std', '49-MFCCs7std', '50-MFCCs8std',
+    '51-MFCCs9std', '52-MFCCs10std', '53-MFCCs11std', '54-MFCCs12std',
+    '55-MFCCs13std',
+    'spectral_contrast_band1_mean', 'spectral_contrast_band1_std',
+    'spectral_contrast_band2_mean', 'spectral_contrast_band2_std',
+    'spectral_contrast_band3_mean', 'spectral_contrast_band3_std',
+    'spectral_contrast_band4_mean', 'spectral_contrast_band4_std',
+    'spectral_contrast_band5_mean', 'spectral_contrast_band5_std',
+    'spectral_contrast_band6_mean', 'spectral_contrast_band6_std',
+    'spectral_contrast_band7_mean', 'spectral_contrast_band7_std',
+    'spectral_flatness_mean', 'spectral_flatness_std',
+    'spectral_bandwidth_mean', 'spectral_bandwidth_std',
+    'spectral_mod_rate', 'spectral_mod_strength',
+    'sub_bass_ratio',
+]
+
+
+def create_feature_mapping(df):
+    """Build dimension → feature-list dict, keeping only columns present in *df*."""
+    available = set(df.select_dtypes(include=[np.number]).columns)
+    mapping = {
+        'energy':              [f for f in _ENERGY_FEATURES       if f in available],
+        'danceability':        [f for f in _DANCEABILITY_FEATURES  if f in available],
+        'tempo':               [f for f in _TEMPO_FEATURES         if f in available],
+        'harmonic_complexity': [f for f in _HARMONIC_FEATURES      if f in available],
+        'rhythmic_density':    [f for f in _RHYTHMIC_FEATURES      if f in available],
+        'electronic_texture':  [f for f in _ELECTRONIC_FEATURES    if f in available],
     }
-    for col in numeric_cols:
-        cl = col.lower()
-        if any(k in cl for k in ('energy', 'rms', 'loudness', 'amplitude')):
-            categories['ENERGY'].append(col)
-        elif any(k in cl for k in ('spectral', 'centroid', 'spread', 'rolloff', 'flux', 'entropy')):
-            categories['SPECTRAL'].append(col)
-        elif 'mfcc' in cl:
-            categories['MFCC'].append(col)
-        elif 'chroma' in cl or 'tonnetz' in cl or 'pitch' in cl:
-            categories['CHROMA'].append(col)
-        elif any(k in cl for k in ('rhythm', 'beat', 'onset', 'tempo', 'bpm', 'percussive', 'tempogram')):
-            categories['RHYTHM'].append(col)
-        elif 'zcr' in cl or 'timbre' in cl:
-            categories['TIMBRE'].append(col)
-        elif any(k in cl for k in ('meta', 'length', 'duration')):
-            categories['META'].append(col)
-        else:
-            categories['OTHER'].append(col)
-    return numeric_cols, categories
+    for dim, feats in mapping.items():
+        print(f"  {dim}: {len(feats)} features")
+    return mapping
 
 
-DIMENSION_CONFIG = {
-    'energy': {
-        'patterns': [r'.*energy.*', r'.*rms.*', r'.*loudness.*', r'.*amplitude.*'],
-        'categories': ['ENERGY'],
-    },
-    'danceability': {
-        'patterns': [r'.*danceability.*', r'.*groove.*', r'.*beat_strength.*'],
-        'categories': ['RHYTHM'],
-    },
-    'tempo': {
-        'patterns': [r'.*bpm.*', r'.*tempo.*', r'.*beat.*'],
-        'categories': ['META', 'RHYTHM'],
-    },
-    'harmonic_complexity': {
-        'patterns': [r'.*chroma.*', r'.*tonnetz.*', r'.*pitch.*', r'.*harmonic.*'],
-        'categories': ['CHROMA'],
-    },
-    'rhythmic_density': {
-        'patterns': [r'.*onset.*', r'.*tempogram.*', r'.*percussive.*', r'.*beat.*'],
-        'categories': ['RHYTHM'],
-    },
-    'electronic_texture': {
-        'patterns': [r'.*spectral.*', r'.*mfcc.*', r'.*timbre.*', r'.*centroid.*', r'.*rolloff.*'],
-        'categories': ['SPECTRAL', 'MFCC', 'TIMBRE'],
-    },
-}
-
-
-def create_adaptive_feature_mapping(feature_categories):
-    """Map dataset columns to the six musical dimensions."""
-    all_features = []
-    for feats in feature_categories.values():
-        all_features.extend(feats)
-
-    feature_mapping = {}
-    for dimension, config in DIMENSION_CONFIG.items():
-        matched = []
-        for pattern in config['patterns']:
-            for feat in all_features:
-                if re.match(pattern, feat.lower()) and feat not in matched:
-                    matched.append(feat)
-        for cat in config['categories']:
-            if cat in feature_categories:
-                for feat in feature_categories[cat]:
-                    if feat not in matched:
-                        matched.append(feat)
-        feature_mapping[dimension] = matched[:5]  # max 5 per dimension
-    return feature_mapping
-
+# ────────────────────────────────────────────────────────────────
+#  Profile computation  (z-score normalisation + p5/p95 percentile)
+# ────────────────────────────────────────────────────────────────
 
 def compute_adaptive_musical_profiles(df, cluster_labels, feature_mapping):
-    """Compute percentile-ranked profiles per cluster."""
-    fallback_features = {
-        'energy':              lambda d: d.select_dtypes(include=[np.number]).std(axis=1),
-        'danceability':        lambda d: d.select_dtypes(include=[np.number]).mean(axis=1),
-        'tempo':               lambda d: d.select_dtypes(include=[np.number]).iloc[:, 0],
-        'harmonic_complexity': lambda d: d.select_dtypes(include=[np.number]).var(axis=1),
-        'rhythmic_density':    lambda d: d.select_dtypes(include=[np.number]).max(axis=1),
-        'electronic_texture':  lambda d: d.select_dtypes(include=[np.number]).min(axis=1),
-    }
+    """Compute p5/p95-scaled profiles per cluster.
 
+    For each dimension:
+      1. Z-score normalise every feature so all contribute equally.
+      2. Average the normalised features per track → per-dimension score.
+      3. Scale each cluster's mean score to 0–100 via p5/p95 linear
+         interpolation (matching the original reference implementation)
+         and clip to [0, 100].
+    """
     profiles = {}
     for cid in np.unique(cluster_labels):
         mask = cluster_labels == cid
-        cluster_data = df[mask]
         profile = {}
         for dim, features in feature_mapping.items():
+            if not features:
+                profile[dim] = 50.0
+                continue
             try:
-                if features:
-                    dim_vals = cluster_data[features].mean(axis=1)
-                    all_vals = df[features].mean(axis=1)
-                else:
-                    raise KeyError
+                # Z-score normalize each feature so all contribute equally
+                raw = df[features]
+                mu = raw.mean()
+                sigma = raw.std().replace(0, 1)
+                normed = (raw - mu) / sigma
+                dim_vals = normed.loc[mask].mean(axis=1)
+                all_vals = normed.mean(axis=1)
             except Exception:
-                dim_vals = fallback_features[dim](cluster_data)
-                all_vals = fallback_features[dim](df)
+                profile[dim] = 50.0
+                continue
 
             if len(all_vals) > 0:
                 lo, hi = np.percentile(all_vals, 5), np.percentile(all_vals, 95)
                 if hi > lo:
-                    profile[dim] = float(np.clip((dim_vals.mean() - lo) / (hi - lo) * 100, 0, 100))
+                    profile[dim] = float(np.clip(
+                        (dim_vals.mean() - lo) / (hi - lo) * 100, 0, 100))
                 else:
                     profile[dim] = 50.0
             else:
@@ -199,8 +253,7 @@ def create_musical_profile_figure(df, cluster_labels, y_true,
     """Create the 2×2 radar-plot figure (Figure 4 in the paper)."""
 
     # Feature mapping
-    _, feature_categories = explore_dataset_features(df)
-    feature_mapping = create_adaptive_feature_mapping(feature_categories)
+    feature_mapping = create_feature_mapping(df)
 
     # Cluster info (purity)
     cluster_info = {}

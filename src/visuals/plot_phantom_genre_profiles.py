@@ -38,122 +38,54 @@ plt.rcParams.update({
 
 
 # ────────────────────────────────────────────────────────────────
-#  Feature-mapping (shared logic with plot_musical_profile.py)
+#  Explicit feature → dimension mapping  (shared with plot_musical_profile.py)
+#  Every numeric feature is assigned to exactly one radar dimension.
 # ────────────────────────────────────────────────────────────────
 
-def explore_dataset_features(df):
-    """Categorise numeric columns by keyword."""
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    keywords = {
-        'SPECTRAL': ['spectral', 'centroid', 'rolloff', 'bandwidth', 'flatness', 'contrast'],
-        'MFCC':     ['mfcc'],
-        'CHROMA':   ['chroma', 'tonnetz', 'pitch', 'harmonic'],
-        'RHYTHM':   ['onset', 'beat', 'tempo', 'tempogram', 'percussive', 'groove'],
-        'TIMBRE':   ['timbre', 'brightness', 'zero_crossing'],
-        'ENERGY':   ['rms', 'energy', 'loudness', 'amplitude'],
-        'META':     ['bpm', 'duration', 'key', 'mode'],
-    }
-    categories = {k: [] for k in keywords}
-    categories['OTHER'] = []
-    for col in numeric_cols:
-        cl = col.lower()
-        placed = False
-        for cat, kws in keywords.items():
-            if any(kw in cl for kw in kws):
-                categories[cat].append(col)
-                placed = True
-                break
-        if not placed:
-            categories['OTHER'].append(col)
-    return numeric_cols, categories
-
-
-DIMENSION_CONFIG = {
-    'energy': {
-        'patterns':   [r'.*energy.*', r'.*rms.*', r'.*loudness.*', r'.*amplitude.*'],
-        'categories': ['ENERGY'],
-    },
-    'danceability': {
-        'patterns':   [r'.*danceability.*', r'.*groove.*', r'.*beat_strength.*'],
-        'categories': ['RHYTHM'],
-    },
-    'tempo': {
-        'patterns':   [r'.*bpm.*', r'.*tempo.*', r'.*beat.*'],
-        'categories': ['META', 'RHYTHM'],
-    },
-    'harmonic_complexity': {
-        'patterns':   [r'.*chroma.*', r'.*tonnetz.*', r'.*pitch.*', r'.*harmonic.*'],
-        'categories': ['CHROMA'],
-    },
-    'rhythmic_density': {
-        'patterns':   [r'.*onset.*', r'.*tempogram.*', r'.*percussive.*', r'.*beat.*'],
-        'categories': ['RHYTHM'],
-    },
-    'electronic_texture': {
-        'patterns':   [r'.*spectral.*', r'.*mfcc.*', r'.*timbre.*', r'.*centroid.*', r'.*rolloff.*'],
-        'categories': ['SPECTRAL', 'MFCC', 'TIMBRE'],
-    },
-}
-
-
-def create_adaptive_feature_mapping(feature_categories):
-    all_features = []
-    for feats in feature_categories.values():
-        all_features.extend(feats)
-
-    feature_mapping = {}
-    for dimension, config in DIMENSION_CONFIG.items():
-        matched = []
-        for pattern in config['patterns']:
-            for feat in all_features:
-                if re.match(pattern, feat.lower()) and feat not in matched:
-                    matched.append(feat)
-        for cat in config['categories']:
-            if cat in feature_categories:
-                for feat in feature_categories[cat]:
-                    if feat not in matched:
-                        matched.append(feat)
-        feature_mapping[dimension] = matched[:5]
-    return feature_mapping
+from plot_musical_profile import (
+    _ENERGY_FEATURES, _DANCEABILITY_FEATURES, _TEMPO_FEATURES,
+    _HARMONIC_FEATURES, _RHYTHMIC_FEATURES, _ELECTRONIC_FEATURES,
+    create_feature_mapping,
+)
 
 
 # ────────────────────────────────────────────────────────────────
-#  Genre-level profile computation (percentile ranked)
+#  Genre-level profile computation  (z-score + p5/p95 percentile)
 # ────────────────────────────────────────────────────────────────
 
 def compute_genre_profiles(df, y_true, feature_mapping):
-    """Percentile-ranked profiles per commercial genre label."""
-    fallback = {
-        'energy':              lambda d: d.select_dtypes(include=[np.number]).std(axis=1),
-        'danceability':        lambda d: d.select_dtypes(include=[np.number]).mean(axis=1),
-        'tempo':               lambda d: d.select_dtypes(include=[np.number]).iloc[:, 0],
-        'harmonic_complexity': lambda d: d.select_dtypes(include=[np.number]).var(axis=1),
-        'rhythmic_density':    lambda d: d.select_dtypes(include=[np.number]).max(axis=1),
-        'electronic_texture':  lambda d: d.select_dtypes(include=[np.number]).min(axis=1),
-    }
+    """Compute p5/p95-scaled profiles per commercial genre label.
 
+    For each dimension:
+      1. Z-score normalise every feature so all contribute equally.
+      2. Average the normalised features per track → per-dimension score.
+      3. Scale each genre's mean score to 0–100 via p5/p95 linear
+         interpolation and clip to [0, 100].
+    """
     profiles = {}
     for genre in np.unique(y_true):
         mask = y_true == genre
-        genre_data = df[mask]
         profile = {}
         for dim, features in feature_mapping.items():
+            if not features:
+                profile[dim] = 50.0
+                continue
             try:
-                if features:
-                    dim_vals = genre_data[features].mean(axis=1)
-                    all_vals = df[features].mean(axis=1)
-                else:
-                    raise KeyError
+                raw = df[features]
+                mu = raw.mean()
+                sigma = raw.std().replace(0, 1)
+                normed = (raw - mu) / sigma
+                dim_vals = normed[mask].mean(axis=1)
+                all_vals = normed.mean(axis=1)
             except Exception:
-                dim_vals = fallback[dim](genre_data)
-                all_vals = fallback[dim](df)
+                profile[dim] = 50.0
+                continue
 
             if len(all_vals) > 0:
                 lo, hi = np.percentile(all_vals, 5), np.percentile(all_vals, 95)
                 if hi > lo:
-                    profile[dim] = float(
-                        np.clip((dim_vals.mean() - lo) / (hi - lo) * 100, 0, 100)
-                    )
+                    profile[dim] = float(np.clip(
+                        (dim_vals.mean() - lo) / (hi - lo) * 100, 0, 100))
                 else:
                     profile[dim] = 50.0
             else:
@@ -220,8 +152,7 @@ def create_convergent_genre_figure(
     """Create 2×2 radar figure for acoustically convergent genre pairs."""
 
     # Feature mapping & genre profiles
-    _, feat_cats = explore_dataset_features(df)
-    fmap = create_adaptive_feature_mapping(feat_cats)
+    fmap = create_feature_mapping(df)
     profiles = compute_genre_profiles(df, y_true, fmap)
 
     # Convergent pairs (dual filter: co-clustering + Δ < 15)

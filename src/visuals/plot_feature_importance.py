@@ -227,7 +227,8 @@ df['display_name'] = df['feature'].apply(readable)
 score_cols = ['anova', 'mutual_info', 'random_forest', 'extra_trees',
               'variance', 'cluster_separation']
 labels = ['ANOVA', 'MI', 'RF', 'ET', 'VARIANCE', 'SEPARATION']
-colors = ['#e07a5f', '#81b29a', '#6fa8dc', '#b6d7a8', '#f4c542', '#c4a8d4']
+# Pastel palette — still colorful but reduced contrast for print
+colors = ['#d4a0a0', '#a0c4b8', '#a0bdd4', '#b8d4a0', '#d4cca0', '#c4b0d4']
 
 # Top 25 by total stacked importance
 df['total_importance'] = df[score_cols].sum(axis=1)
@@ -236,10 +237,10 @@ top = top.iloc[::-1]
 
 # Category colours
 cat_colors = {
-    'Conventional MIR':        '#2b5ea7',
-    'EDM Production & Texture': '#c44e2e',
-    'Tempogram-Based':         '#1a6b3c',
-    'Metadata':                '#7a7a7a',
+    'Conventional MIR':        '#5b8ec7',   # muted blue
+    'EDM Production & Texture': '#d4836e',   # muted terracotta
+    'Tempogram-Based':         '#4a9b6c',   # muted green
+    'Metadata':                '#9a9a9a',
 }
 
 # ──────────────────────────────────────────────────────────────
