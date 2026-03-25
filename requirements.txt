@@ -1,0 +1,12 @@
+# Core scientific computing
+numpy
+pandas
+scipy
+
+# Machine learning
+scikit-learn
+
+# Visualization
+matplotlib
+seaborn
+plotly
